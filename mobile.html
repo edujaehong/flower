@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+  <title>티타임즈 화원 - Mobile Web App</title>
+  
+  <!-- Tailwind CSS & Plugins -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  
+  <!-- Web Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Manrope:wght@300;400;500;600;700;800&family=Noto+Serif+KR:wght@500;600;700&family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-bg": "#fcf9f4",
+            "surface-card": "#ffffff",
+            "surface-dim": "#f0ede9",
+            "primary-green": "#004900", // Deep forest green
+            "accent-gold": "#D4AF37", // Gold trim
+            "accent-gold-dark": "#b59228",
+            "neutral-charcoal": "#2d2d2a",
+            "neutral-muted": "#707a6a",
+            "neutral-light-border": "#e5e2dd",
+          },
+          fontFamily: {
+            serif: ["Playfair Display", "Noto Serif KR", "serif"],
+            sans: ["Pretendard", "Manrope", "sans-serif"],
+          },
+          borderRadius: {
+            "mobile-card": "20px",
+            "mobile-pill": "9999px",
+            "btn": "12px",
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Mobile app native feels */
+    body {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      overscroll-behavior-y: contain;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%);
+      }
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideDownAlert {
+      0% {
+        transform: translateY(-120%);
+        opacity: 0;
+      }
+      10% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      90% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-120%);
+        opacity: 0;
+      }
+    }
+
+    @keyframes scaleIn {
+      from {
+        transform: scale(0.9) opacity: 0;
+      }
+      to {
+        transform: scale(1) opacity: 1;
+      }
+    }
+
+    .animate-slide-up {
+      animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .animate-mobile-alert {
+      animation: slideDownAlert 4.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Ticket styling */
+    .ticket-dashed-line {
+      background-image: linear-gradient(to right, #D4AF37 40%, rgba(255, 255, 255, 0) 0%);
+      background-position: bottom;
+      background-size: 8px 1px;
+      background-repeat: repeat-x;
+    }
+
+    /* Hide scrollbars but keep swipe */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-surface-bg text-neutral-charcoal font-sans min-h-screen flex flex-col justify-between overflow-x-hidden antialiased pb-20">
+
+  <!-- iOS-Style Top Floating Notification Banner -->
+  <div id="mobile-push-banner" class="fixed top-3 left-4 right-4 z-50 pointer-events-none hidden">
+    <div class="bg-black/85 text-white p-3.5 rounded-[18px] shadow-2xl flex items-center gap-3 border border-white/10 pointer-events-auto cursor-pointer animate-mobile-alert">
+      <div class="w-8 h-8 rounded-full bg-primary-green flex items-center justify-center border border-accent-gold text-accent-gold text-xs font-serif font-bold">AF</div>
+      <div class="flex-grow">
+        <div class="flex justify-between items-center">
+          <span class="text-[11px] font-bold text-accent-gold flex items-center gap-0.5">
+            <span class="material-symbols-outlined text-[12px]">verified</span>티타임즈 화원 알림
+          </span>
+          <span class="text-[9px] text-white/50">방금 전</span>
+        </div>
+        <p class="text-[11px] text-white/90 mt-0.5" id="push-banner-body">새로운 알림 메시지가 도착했습니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Simulated Mobile Status Bar -->
+  <div class="bg-white px-5 py-2 flex justify-between items-center text-xs font-semibold select-none z-40 border-b border-neutral-light-border/30">
+    <span id="mobile-time">15:05</span>
+    <div class="flex items-center gap-1.5 text-[14px]">
+      <span class="material-symbols-outlined text-[14px]">signal_cellular_4_bar</span>
+      <span class="material-symbols-outlined text-[14px]">wifi</span>
+      <span class="material-symbols-outlined text-[14px]">battery_5_bar</span>
+    </div>
+  </div>
+
+  <!-- Mobile Header -->
+  <header class="bg-white/90 backdrop-blur sticky top-0 w-full z-40 px-5 py-3 border-b border-neutral-light-border/40 flex justify-between items-center shadow-sm">
+    <div class="flex items-center gap-2.5">
+      <div class="w-7 h-7 rounded-full bg-primary-green flex items-center justify-center text-accent-gold text-[10px] font-serif font-bold border border-accent-gold">AF</div>
+      <div>
+        <h1 class="font-serif text-sm font-bold text-primary-green flex items-center gap-1">
+          티타임즈 화원
+          <span id="mobile-premium-badge" class="hidden text-[8px] bg-accent-gold/15 text-accent-gold-dark border border-accent-gold/40 px-1.5 py-0.5 rounded-full font-bold">CLUB</span>
+        </h1>
+        <p class="text-[8px] font-bold uppercase tracking-wider text-accent-gold font-sans leading-none">Aurum Flora Hub</p>
+      </div>
+    </div>
+    
+    <!-- Mode Floating Controller -->
+    <button onclick="toggleMobileMode()" id="btn-mode-toggle" class="bg-primary-green border border-accent-gold text-accent-gold text-[9px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shadow-sm transition">
+      <span class="material-symbols-outlined text-[12px]" id="mode-icon">dashboard</span>
+      <span id="mode-text">대표님 모드로</span>
+    </button>
+  </header>
+
+  <!-- Mobile Screen Content Body -->
+  <div class="flex-grow">
+    
+    <!-- ==============================================
+         TAB: HOME
+         ============================================== -->
+    <div id="m-tab-home" class="m-tab-content block p-5 space-y-6">
+      
+      <!-- Sticky Card: Viral Queen Info -->
+      <div class="bg-white rounded-mobile-card border border-accent-gold/30 p-4 shadow-sm flex items-center justify-between gap-4 relative overflow-hidden">
+        <div class="absolute top-0 right-0 transform translate-x-4 -translate-y-4 w-16 h-16 rounded-full bg-accent-gold/5 pointer-events-none"></div>
+        <div class="flex items-center gap-3">
+          <div class="relative shrink-0">
+            <div class="w-12 h-12 rounded-full border border-accent-gold bg-surface-bg flex items-center justify-center text-xl shadow" id="m-queen-avatar">👸</div>
+            <span class="absolute -bottom-1 -right-1 bg-primary-green text-accent-gold text-[8px] font-bold px-1 rounded-full">1st</span>
+          </div>
+          <div>
+            <span class="text-[8px] bg-accent-gold/10 text-accent-gold-dark border border-accent-gold/30 px-1.5 py-0.5 rounded font-bold uppercase tracking-wide">이달의 바이럴 퀸</span>
+            <h4 class="font-serif text-sm font-bold text-primary-green mt-1" id="m-queen-name">이달의 퀸</h4>
+            <p class="text-[9px] text-neutral-muted" id="m-queen-desc">공유 0회 • 추천구매 0건</p>
+          </div>
+        </div>
+        <button onclick="openShareModal()" class="bg-primary-green text-accent-gold border border-accent-gold text-[10px] font-bold px-3 py-2.5 rounded-btn hover:bg-accent-gold hover:text-primary-green transition flex items-center gap-1 shrink-0 shadow-sm">
+          <span class="material-symbols-outlined text-[14px]">share</span>공유
+        </button>
+      </div>
+
+      <!-- Quick Seasonal Flowers Slider (Horizontal Scroll) -->
+      <div>
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="font-serif text-sm font-bold text-primary-green">Curated Seasons</h3>
+          <span class="text-[9px] font-bold text-accent-gold">Swipe to view</span>
+        </div>
+
+        <div class="flex gap-4 overflow-x-auto no-scrollbar py-1">
+          <!-- Slide Item 1 -->
+          <div class="bg-white rounded-mobile-card overflow-hidden w-[160px] border border-neutral-light-border/40 shadow-sm shrink-0">
+            <img src="https://images.unsplash.com/photo-1561181286-d3fee7d55364?q=80&w=300&auto=format&fit=crop" class="w-full h-24 object-cover" alt="Pink Peony">
+            <div class="p-3">
+              <span class="text-[8px] text-accent-gold-dark font-bold uppercase block">Signature</span>
+              <h5 class="font-bold text-xs text-primary-green mt-0.5">아우룸 피오니</h5>
+              <p class="text-[9px] text-neutral-muted mt-1 font-light">작약 & 하노이 믹스</p>
+            </div>
+          </div>
+          <!-- Slide Item 2 -->
+          <div class="bg-white rounded-mobile-card overflow-hidden w-[160px] border border-neutral-light-border/40 shadow-sm shrink-0">
+            <img src="https://images.unsplash.com/photo-1596436889106-be35e843f974?q=80&w=300&auto=format&fit=crop" class="w-full h-24 object-cover" alt="White Lilies">
+            <div class="p-3">
+              <span class="text-[8px] text-accent-gold-dark font-bold uppercase block">Premium</span>
+              <h5 class="font-bold text-xs text-primary-green mt-0.5">로열 임페리얼 릴리</h5>
+              <p class="text-[9px] text-neutral-muted mt-1 font-light">백합 & 프리미엄 안개</p>
+            </div>
+          </div>
+          <!-- Slide Item 3 -->
+          <div class="bg-white rounded-mobile-card overflow-hidden w-[160px] border border-neutral-light-border/40 shadow-sm shrink-0">
+            <img src="https://images.unsplash.com/photo-1520763185298-1b434c919102?q=80&w=300&auto=format&fit=crop" class="w-full h-24 object-cover" alt="Dark Tulips">
+            <div class="p-3">
+              <span class="text-[8px] text-accent-gold-dark font-bold uppercase block">Prestige</span>
+              <h5 class="font-bold text-xs text-primary-green mt-0.5">벨벳 누아르 튤립</h5>
+              <p class="text-[9px] text-neutral-muted mt-1 font-light">튤립 & 올리브 가든</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions / Brand Story Card -->
+      <div class="bg-primary-green text-white p-5 rounded-mobile-card border border-accent-gold shadow-md relative overflow-hidden">
+        <div class="absolute top-0 right-0 transform translate-x-4 -translate-y-4 w-20 h-20 bg-white/5 rounded-full pointer-events-none"></div>
+        <span class="text-[8px] text-accent-gold uppercase tracking-widest font-bold">Premium Networking</span>
+        <h4 class="font-serif text-base font-bold mt-1 mb-2 leading-snug">대표님의 인맥과 식물 감각을 담아 전합니다</h4>
+        <p class="text-white/80 text-[10px] leading-relaxed mb-4 font-light">
+          축하, 위로, 사과 등 어떤 비즈니스 상황도 대표님의 고유 큐레이션을 통해 최고의 마음으로 다가갑니다. 3초 스마트 폼으로 최적의 주문을 시작해 보세요.
+        </p>
+        <button onclick="goToTab('order')" class="w-full bg-accent-gold text-primary-green font-bold text-xs py-3 rounded-btn shadow hover:bg-white transition flex items-center justify-center gap-1">
+          <span>스마트 추천 주문 시작</span>
+          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ==============================================
+         TAB: SMART ORDER
+         ============================================== -->
+    <div id="m-tab-order" class="m-tab-content hidden p-5 space-y-6">
+      <div class="bg-white rounded-mobile-card border border-neutral-light-border/60 shadow-sm overflow-hidden">
+        
+        <!-- Header -->
+        <div class="bg-primary-green p-5 text-white">
+          <span class="text-[8px] uppercase tracking-widest text-accent-gold font-bold">3-Second Order Wizard</span>
+          <h3 class="font-serif text-base font-bold mt-0.5">상황별 맞춤 스마트 주문</h3>
+          <p class="text-white/70 text-[9px] mt-1 font-light">가장 확실한 감동 큐레이션을 빠르게 구성합니다.</p>
+        </div>
+
+        <div class="p-5">
+          <!-- Wizard Steps Navigator -->
+          <div class="flex justify-between items-center max-w-xs mx-auto mb-6">
+            <div id="m-dot-1" class="w-6 h-6 rounded-full bg-primary-green text-white flex items-center justify-center font-bold text-[10px] shadow">1</div>
+            <div id="m-line-1" class="flex-grow h-[1px] bg-neutral-light-border mx-2"></div>
+            <div id="m-dot-2" class="w-6 h-6 rounded-full bg-surface-bg text-neutral-muted flex items-center justify-center font-bold text-[10px] border border-neutral-light-border">2</div>
+            <div id="m-line-2" class="flex-grow h-[1px] bg-neutral-light-border mx-2"></div>
+            <div id="m-dot-3" class="w-6 h-6 rounded-full bg-surface-bg text-neutral-muted flex items-center justify-center font-bold text-[10px] border border-neutral-light-border">3</div>
+          </div>
+
+          <!-- Wizard Step 1: Occasion -->
+          <div id="m-step-1" class="m-step-pane">
+            <h4 class="text-xs font-bold text-center text-primary-green mb-4">전하고자 하는 마음의 상황은?</h4>
+            <div class="space-y-2.5">
+              <button onclick="mSelectOccasion('celebration')" class="m-occ-btn w-full p-4 rounded-btn border border-neutral-light-border hover:border-accent-gold bg-surface-bg text-left transition flex items-center gap-3">
+                <span class="material-symbols-outlined text-[24px] text-accent-gold">celebration</span>
+                <div>
+                  <span class="block font-bold text-xs text-neutral-charcoal">축하 및 기념일</span>
+                  <span class="text-[9px] text-neutral-muted font-light">화사함으로 기쁨을 배가</span>
+                </div>
+              </button>
+              <button onclick="mSelectOccasion('consolation')" class="m-occ-btn w-full p-4 rounded-btn border border-neutral-light-border hover:border-accent-gold bg-surface-bg text-left transition flex items-center gap-3">
+                <span class="material-symbols-outlined text-[24px] text-accent-gold">favorite</span>
+                <div>
+                  <span class="block font-bold text-xs text-neutral-charcoal">위로 및 격려</span>
+                  <span class="text-[9px] text-neutral-muted font-light font-light">고요함과 평안한 마음 전달</span>
+                </div>
+              </button>
+              <button onclick="mSelectOccasion('apology')" class="m-occ-btn w-full p-4 rounded-btn border border-neutral-light-border hover:border-accent-gold bg-surface-bg text-left transition flex items-center gap-3">
+                <span class="material-symbols-outlined text-[24px] text-accent-gold">sentiment_satisfied</span>
+                <div>
+                  <span class="block font-bold text-xs text-neutral-charcoal">사과 및 화해</span>
+                  <span class="text-[9px] text-neutral-muted font-light">진심 가득한 품격을 전달</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Wizard Step 2: Recipient -->
+          <div id="m-step-2" class="m-step-pane hidden">
+            <h4 class="text-xs font-bold text-center text-primary-green mb-4">꽃을 받으시는 소중한 분은?</h4>
+            <div class="grid grid-cols-2 gap-3 mb-5">
+              <button onclick="mSelectRecipient('parents')" class="m-rec-btn p-4 rounded-btn border border-neutral-light-border hover:border-accent-gold bg-surface-bg text-center transition flex flex-col items-center gap-1.5">
+                <span class="material-symbols-outlined text-[24px] text-primary-green">family_history</span>
+                <span class="font-bold text-[10px]">부모님 / 스승님</span>
+              </button>
+              <button onclick="mSelectRecipient('lover')" class="m-rec-btn p-4 rounded-btn border border-neutral-light-border hover:border-accent-gold bg-surface-bg text-center transition flex flex-col items-center gap-1.5">
+                <span class="material-symbols-outlined text-[24px] text-rose-500">favorite_heart</span>
+                <span class="font-bold text-[10px]">연인 / 배우자</span>
+              </button>
+              <button onclick="mSelectRecipient('partner')" class="m-rec-btn p-4 rounded-btn border border-neutral-light-border hover:border-accent-gold bg-surface-bg text-center transition flex flex-col items-center gap-1.5">
+                <span class="material-symbols-outlined text-[24px] text-accent-gold-dark">handshake</span>
+                <span class="font-bold text-[10px]">비즈니스 파트너</span>
+              </button>
+              <button onclick="mSelectRecipient('friend')" class="m-rec-btn p-4 rounded-btn border border-neutral-light-border hover:border-accent-gold bg-surface-bg text-center transition flex flex-col items-center gap-1.5">
+                <span class="material-symbols-outlined text-[24px] text-blue-500">group</span>
+                <span class="font-bold text-[10px]">친구 / 지인</span>
+              </button>
+            </div>
+            
+            <div class="flex justify-center">
+              <button onclick="mGoToStep(1)" class="text-[10px] font-bold text-neutral-muted flex items-center gap-1 transition">
+                <span class="material-symbols-outlined text-[12px]">arrow_back</span>상황 선택으로
+              </button>
+            </div>
+          </div>
+
+          <!-- Wizard Step 3: Result & Pay -->
+          <div id="m-step-3" class="m-step-pane hidden">
+            <div class="space-y-4">
+              
+              <!-- Rec Summary Panel -->
+              <div class="bg-surface-bg border border-accent-gold p-4 rounded-btn space-y-3">
+                <div class="flex justify-between items-start gap-2">
+                  <span class="text-[7px] uppercase font-bold tracking-wider text-accent-gold-dark border border-accent-gold/40 px-1.5 py-0.5 rounded bg-white">CEO Curated</span>
+                  <span class="font-serif text-[11px] font-bold text-primary-green shrink-0" id="m-rec-price">120,000원</span>
+                </div>
+                
+                <h4 class="font-serif text-sm font-bold text-accent-gold-dark" id="m-rec-title">추천 제목</h4>
+                <p class="text-[10px] text-neutral-charcoal leading-relaxed font-light" id="m-rec-desc">추천 상세 내용...</p>
+                
+                <div class="border-t border-neutral-light-border/40 pt-2 flex flex-wrap gap-1.5" id="m-rec-flowers">
+                  <!-- Badges -->
+                </div>
+
+                <div class="bg-white border-l-2 border-accent-gold p-2.5 rounded text-[9px] italic relative shadow-inner">
+                  <span class="block text-[8px] uppercase tracking-wide font-bold text-accent-gold-dark not-italic mb-0.5">보내실 감동 편지문구:</span>
+                  <p id="m-rec-card-msg">"편지 문구..."</p>
+                </div>
+              </div>
+
+              <!-- Promo code or auto coupon -->
+              <div class="bg-white border border-neutral-light-border/80 rounded-btn p-3 text-[10px] space-y-2">
+                <div class="flex justify-between items-center">
+                  <span class="font-bold text-neutral-charcoal flex items-center gap-1"><span class="material-symbols-outlined text-[14px] text-accent-gold">confirmation_number</span>추천 코드 / 할인 적용</span>
+                  <span id="m-coupon-badge" class="text-[7px] bg-neutral-light-border px-1.5 py-0.5 rounded font-bold">쿠폰 미적용</span>
+                </div>
+                <div class="flex gap-2">
+                  <input type="text" id="m-referral-input" placeholder="코드 입력 (예: VIP_QUEEN)" class="flex-grow border border-neutral-light-border focus:ring-accent-gold focus:border-accent-gold rounded text-[10px] px-2.5 py-1">
+                  <button onclick="mApplyReferral()" class="bg-primary-green text-white font-bold px-3 py-1 rounded text-[10px] shrink-0">적용</button>
+                </div>
+              </div>
+
+              <!-- Price Card -->
+              <div class="bg-surface-bg border border-neutral-light-border/60 rounded-btn p-3 text-[10px] space-y-1">
+                <div class="flex justify-between">
+                  <span class="text-neutral-muted">정상 주문 가격:</span>
+                  <span class="font-serif font-bold text-neutral-charcoal" id="m-summary-original">120,000원</span>
+                </div>
+                <div class="flex justify-between text-rose-500 hidden" id="m-summary-discount-row">
+                  <span>추천 가입 특별 할인 (15%):</span>
+                  <span id="m-summary-discount">-18,000원</span>
+                </div>
+                <div class="flex justify-between border-t border-neutral-light-border/40 pt-1.5 font-bold text-primary-green text-xs">
+                  <span>최종 결제 금액:</span>
+                  <span class="font-serif text-sm text-accent-gold-dark" id="m-summary-final">120,000원</span>
+                </div>
+              </div>
+
+              <button onclick="mExecuteOrder()" class="w-full bg-primary-green text-[#ffffff] font-bold text-xs py-3.5 rounded-btn shadow hover:bg-primary-dark-green transition flex items-center justify-center gap-1">
+                <span class="material-symbols-outlined text-[16px]">shopping_bag</span>
+                <span>주문 결제 및 카톡 접수 완료</span>
+              </button>
+
+              <div class="flex justify-between">
+                <button onclick="mGoToStep(2)" class="text-[10px] font-bold text-neutral-muted flex items-center gap-0.5 transition">
+                  <span class="material-symbols-outlined text-[12px]">arrow_back</span>이전으로
+                </button>
+                <span class="text-[8px] text-neutral-muted font-light">가상 주문이며 취소가 언제나 가능합니다.</span>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ==============================================
+         TAB: LOUNGE (LOCKBOARD)
+         ============================================== -->
+    <div id="m-tab-lounge" class="m-tab-content hidden p-5 relative min-h-[400px]">
+      
+      <!-- Lock Overlay -->
+      <div id="m-lounge-lock" class="absolute inset-0 z-20 glass-premium m-5 rounded-mobile-card border border-accent-gold/40 flex flex-col items-center justify-center text-center p-5">
+        <div class="w-12 h-12 rounded-full bg-accent-gold/20 text-accent-gold border border-accent-gold flex items-center justify-center font-bold text-lg mb-3 shadow-inner">
+          <span class="material-symbols-outlined text-[24px]">lock_open_right</span>
+        </div>
+        <span class="text-[8px] text-accent-gold uppercase font-bold tracking-widest mb-1">VIP Premium Lounge</span>
+        <h3 class="font-serif text-base font-bold text-primary-green">유료 소셜 라운지 게시판</h3>
+        <p class="text-[9px] text-neutral-muted max-w-[240px] leading-relaxed mt-1.5 mb-4">
+          본 클래스 및 정기 와인 네트워킹은 **'Aurum Club' (월 29,000원)** 회원 전용 비밀 공지 공간입니다.
+        </p>
+        
+        <button onclick="mUpgradeMembership()" class="w-full max-w-[240px] bg-primary-green text-[#ffffff] border border-accent-gold font-bold py-3 rounded-btn text-[10px] shadow flex items-center justify-center gap-1 mb-2">
+          <span class="material-symbols-outlined text-[14px] text-accent-gold">workspace_premium</span>
+          <span>Club 정회원 가입 및 언락</span>
+        </button>
+        <button onclick="goToTab('mypage')" class="text-[9px] font-bold text-neutral-muted hover:underline">내 쿠폰 & 혜택 확인</button>
+      </div>
+
+      <!-- Real Notice lounge list -->
+      <div class="bg-white rounded-mobile-card border border-neutral-light-border/60 p-5 shadow-sm space-y-6 min-h-[350px]">
+        <div class="border-b border-neutral-light-border/60 pb-3">
+          <h3 class="font-serif text-sm font-bold text-primary-green">Aurum Club VIP Notices</h3>
+          <p class="text-[9px] text-neutral-muted leading-none mt-1">프라이빗 네트워킹 파티 및 프리미엄 강좌 신청</p>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Event 1 -->
+          <div class="bg-surface-bg border border-accent-gold/30 rounded-btn p-4 space-y-2.5">
+            <div>
+              <span class="text-[7px] bg-primary-green text-white px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Class</span>
+              <h4 class="font-serif text-xs font-bold text-primary-green mt-1">초여름 밤의 프라이빗 리스 데코 클래스</h4>
+              <p class="text-[9px] text-neutral-muted leading-relaxed font-light mt-0.5">로마 가문의 최고급 드라이 카네이션과 유칼립투스로 공간을 정화하는 리스 장식 만들기 강좌.</p>
+            </div>
+            <div class="text-[8px] text-neutral-charcoal/80 space-y-0.5 leading-none">
+              <div class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px] text-accent-gold-dark">calendar_month</span>2026-06-15 19:30</div>
+              <div class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px] text-accent-gold-dark">location_on</span>청담 플래그십 아틀리에 2F</div>
+            </div>
+            <button onclick="mToggleRSVP(1)" id="m-rsvp-btn-1" class="w-full bg-primary-green text-white text-[9px] font-bold py-2 rounded">참석 신청</button>
+          </div>
+
+          <!-- Event 2 -->
+          <div class="bg-surface-bg border border-accent-gold/30 rounded-btn p-4 space-y-2.5">
+            <div>
+              <span class="text-[7px] bg-accent-gold text-primary-green px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Wine Party</span>
+              <h4 class="font-serif text-xs font-bold text-primary-green mt-1">오월의 가든 와인 소셜 소사이어티 파티</h4>
+              <p class="text-[9px] text-neutral-muted leading-relaxed font-light mt-0.5">대표님 초청 연례 VIP 살롱 파티. 파트너 인맥 연계 내추럴 와인 시음 및 음악회 밤.</p>
+            </div>
+            <div class="text-[8px] text-neutral-charcoal/80 space-y-0.5 leading-none">
+              <div class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px] text-accent-gold-dark">calendar_month</span>2026-06-28 18:00</div>
+              <div class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px] text-accent-gold-dark">location_on</span>라움 가든 테라스 3F</div>
+            </div>
+            <button onclick="mToggleRSVP(2)" id="m-rsvp-btn-2" class="w-full bg-primary-green text-white text-[9px] font-bold py-2 rounded">참석 신청</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==============================================
+         TAB: MY PAGE (CRM & COUPON LOADER)
+         ============================================== -->
+    <div id="m-tab-mypage" class="m-tab-content hidden p-5 space-y-6">
+      
+      <!-- Voucher Packet pocket -->
+      <div>
+        <h3 class="font-serif text-xs font-bold text-primary-green mb-3 flex items-center gap-1">
+          <span class="material-symbols-outlined text-[14px]">confirmation_number</span>내 쿠폰함
+        </h3>
+        <div class="space-y-2.5" id="m-coupons-list">
+          <!-- Dynamic coupons cards with dashed ticket lines -->
+        </div>
+      </div>
+
+      <!-- CRM Anniversary List -->
+      <div class="bg-white rounded-mobile-card border border-neutral-light-border/60 p-4 shadow-sm">
+        <h3 class="font-serif text-xs font-bold text-primary-green mb-2 flex items-center gap-1">
+          <span class="material-symbols-outlined text-[14px]">calendar_today</span>기념일 보관소 (CRM)
+        </h3>
+        <p class="text-[8px] text-neutral-muted mb-4 font-light">1주일 전 가상 알림톡 푸시 및 추천 폼 연동 테스트 가능</p>
+
+        <!-- Dynamic list -->
+        <div class="space-y-2.5 mb-4" id="m-anniversaries-list">
+          <!-- Items -->
+        </div>
+
+        <!-- Add Form -->
+        <form onsubmit="mAddAnniversary(event)" class="bg-surface-bg p-3 rounded-btn border border-neutral-light-border/40 text-[9px] space-y-2">
+          <span class="block font-bold text-primary-green">새 기념일 추가</span>
+          <div class="flex gap-2">
+            <input type="text" id="m-anniv-title" placeholder="어머니 칠순생신" required class="flex-grow border border-neutral-light-border rounded text-[9px] px-2 py-1 bg-white">
+            <select id="m-anniv-target" class="border border-neutral-light-border rounded text-[9px] px-1 py-1 bg-white">
+              <option value="parents">부모님</option>
+              <option value="lover">연인</option>
+              <option value="partner">바이어</option>
+              <option value="friend">지인</option>
+            </select>
+          </div>
+          <div class="flex gap-2">
+            <input type="date" id="m-anniv-date" required class="flex-grow border border-neutral-light-border rounded text-[9px] px-2 py-1 bg-white">
+            <button type="submit" class="bg-primary-green text-white font-bold px-3 py-1 rounded">등록</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Share Box Card -->
+      <div class="bg-primary-green text-white p-4 rounded-mobile-card border border-accent-gold shadow relative overflow-hidden">
+        <h4 class="font-serif text-xs font-bold">초대 추천 바이럴 링크</h4>
+        <p class="text-white/80 text-[8px] mt-1 font-light">친구가 이 링크로 스마트 예약 결제 완료 시, 추천인과 구매자 모두 15% 기프트권 즉시 자동 지급!</p>
+        <div class="bg-black/30 border border-white/20 p-2.5 rounded mt-3 flex justify-between items-center text-[9px] gap-2">
+          <code class="text-accent-gold font-serif select-all">http://aurumflora.com/?ref=VIP_QUEEN</code>
+          <button onclick="mCopyShareLink()" class="bg-accent-gold text-primary-green font-bold px-2.5 py-1 rounded text-[8px] shrink-0">링크 복사</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==============================================
+         TAB: BOSS MOBILE ADMIN (어드민 모드)
+         ============================================== -->
+    <div id="m-view-admin" class="hidden p-5 space-y-6 animate-fade-in-up">
+      <!-- Header stats -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-white border border-neutral-light-border rounded-btn p-3 shadow-sm">
+          <span class="text-[8px] uppercase tracking-wide text-neutral-muted font-bold block">누적 주문량</span>
+          <span class="font-serif text-base font-bold text-primary-green block mt-1" id="m-admin-orders">0건</span>
+        </div>
+        <div class="bg-white border border-neutral-light-border rounded-btn p-3 shadow-sm">
+          <span class="text-[8px] uppercase tracking-wide text-neutral-muted font-bold block">누적 매출실적</span>
+          <span class="font-serif text-base font-bold text-accent-gold-dark block mt-1" id="m-admin-sales">₩0</span>
+        </div>
+        <div class="bg-white border border-neutral-light-border rounded-btn p-3 shadow-sm">
+          <span class="text-[8px] uppercase tracking-wide text-neutral-muted font-bold block">바이럴 공유수</span>
+          <span class="font-serif text-base font-bold text-primary-green block mt-1" id="m-admin-shares">0회</span>
+        </div>
+        <div class="bg-accent-gold/15 border border-accent-gold rounded-btn p-3 shadow-sm flex flex-col justify-between">
+          <span class="text-[8px] uppercase tracking-wide text-accent-gold-dark font-bold block">이달의 바이럴 퀸</span>
+          <span class="text-[10px] font-bold text-neutral-charcoal mt-1 text-ellipsis overflow-hidden whitespace-nowrap" id="m-admin-queen">👑 미정</span>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex gap-2">
+        <button onclick="mSelectQueenSimulate()" class="flex-grow bg-accent-gold text-primary-green font-bold text-[9px] py-2.5 rounded shadow hover:bg-accent-gold-dark hover:text-white transition">바이럴 퀸 랭킹 1위 강제 임명</button>
+        <button onclick="mResetSimulate()" class="bg-rose-50 border border-rose-200 text-rose-600 font-bold text-[9px] px-3 py-2.5 rounded transition shrink-0">초기화</button>
+      </div>
+
+      <!-- Mobile incoming orders lists -->
+      <div class="bg-white rounded-mobile-card border border-neutral-light-border/60 p-4 shadow-sm space-y-3">
+        <h3 class="font-serif text-xs font-bold text-primary-green">실시간 유입 주문 현황 (모바일)</h3>
+        
+        <div class="space-y-2.5 max-h-[300px] overflow-y-auto no-scrollbar" id="m-admin-orders-list">
+          <!-- Dynamic Orders -->
+        </div>
+      </div>
+
+      <!-- Mobile Referrals list -->
+      <div class="bg-white rounded-mobile-card border border-neutral-light-border/60 p-4 shadow-sm space-y-3">
+        <h3 class="font-serif text-xs font-bold text-primary-green">리퍼럴 활동 지수 통계</h3>
+        <div class="space-y-2" id="m-admin-referrals-list">
+          <!-- Ranks -->
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Simulated Mobile App Bottom Sticky Nav Bar -->
+  <div id="mobile-app-bottom-nav" class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur border-t border-neutral-light-border/50 py-2.5 px-6 flex justify-between items-center shadow-lg select-none">
+    <button onclick="goToTab('home')" class="m-nav-item flex flex-col items-center gap-0.5 text-primary-green">
+      <span class="material-symbols-outlined text-[20px] font-semibold">home</span>
+      <span class="text-[9px] font-bold">홈</span>
+    </button>
+    <button onclick="goToTab('order')" class="m-nav-item flex flex-col items-center gap-0.5 text-neutral-muted hover:text-primary-green">
+      <span class="material-symbols-outlined text-[20px]">shopping_basket</span>
+      <span class="text-[9px] font-semibold">스마트 추천</span>
+    </button>
+    <button onclick="goToTab('lounge')" class="m-nav-item flex flex-col items-center gap-0.5 text-neutral-muted hover:text-primary-green relative">
+      <span class="material-symbols-outlined text-[20px]">lock</span>
+      <span class="text-[9px] font-semibold">소셜 라운지</span>
+    </button>
+    <button onclick="goToTab('mypage')" class="m-nav-item flex flex-col items-center gap-0.5 text-neutral-muted hover:text-primary-green">
+      <span class="material-symbols-outlined text-[20px]">account_circle</span>
+      <span class="text-[9px] font-semibold">내 쿠폰 & CRM</span>
+    </button>
+  </div>
+
+  <!-- Share Modal (Referral engine) -->
+  <div id="m-share-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-end justify-center p-4">
+    <div class="bg-white w-full rounded-t-mobile-card max-w-sm overflow-hidden p-6 animate-slide-up">
+      <div class="flex justify-between items-center pb-3 border-b border-neutral-light-border/40 mb-4">
+        <h4 class="font-serif text-sm font-bold text-primary-green flex items-center gap-1">
+          <span class="material-symbols-outlined text-accent-gold text-[18px]">diversity_2</span>
+          <span>바이럴 초대 팝업</span>
+        </h4>
+        <button onclick="closeShareModal()" class="text-neutral-muted">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <p class="text-[10px] text-neutral-charcoal leading-relaxed mb-4">
+        내 고유 추천인 바이럴 링크를 친구에게 공유하세요. 친구 첫 주문 결제 성공 시 **15% 기프트 혜택 할인권**이 동반 적립됩니다.
+      </p>
+
+      <div class="bg-surface-bg p-3.5 rounded-btn border border-neutral-light-border/40 text-[9px] space-y-2 mb-4">
+        <div class="flex justify-between">
+          <span class="text-neutral-muted">내 초대 코드:</span>
+          <span class="font-bold text-primary-green">VIP_QUEEN</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-neutral-muted">초대 혜택:</span>
+          <span class="text-accent-gold-dark font-bold">15% 커뮤니티 추가 할인권</span>
+        </div>
+        <div class="border-t border-neutral-light-border/40 pt-2 flex flex-col gap-1">
+          <span class="text-neutral-muted">모바일 바이럴 링크:</span>
+          <div class="flex gap-2">
+            <input type="text" id="m-modal-link" readonly value="http://aurumflora.com/?ref=VIP_QUEEN" class="flex-grow border border-neutral-light-border rounded text-[9px] px-2 py-1 bg-white select-all">
+            <button onclick="mCopyModalLink()" class="bg-primary-green text-accent-gold font-bold px-3 py-1 rounded text-[9px] border border-accent-gold">복사</button>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="mTriggerFriendMockOrder()" class="w-full bg-accent-gold text-primary-green font-bold py-3.5 rounded-btn shadow hover:bg-accent-gold-dark hover:text-white transition text-[10px] flex items-center justify-center gap-1">
+        <span class="material-symbols-outlined text-[14px]">psychology</span>
+        <span>시뮬레이터: 카톡 보낸 친구가 주문 결제 완료함 발생</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Grand Confetti Viral Queen Celeb Modal -->
+  <div id="m-queen-celeb" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="bg-gradient-to-b from-primary-green to-primary-green border border-accent-gold w-full max-w-xs rounded-mobile-card text-center p-6 text-white animate-scale-in relative">
+      <div class="w-16 h-16 rounded-full bg-accent-gold/20 text-accent-gold border border-accent-gold flex items-center justify-center font-bold text-2xl mx-auto mb-3 shadow">👑</div>
+      <span class="text-[8px] uppercase tracking-widest font-bold text-accent-gold mb-1 block">Viral Queen Spotlight</span>
+      <h3 class="font-serif text-lg font-bold">이달의 바이럴 퀸 탄생!</h3>
+      <p class="text-[9px] text-white/70 mt-1 max-w-[200px] mx-auto leading-relaxed mb-4">가장 활발하게 꽃 큐레이션을 바이럴 초대한 정회원이 랭킹 보드 1위에 등극했습니다.</p>
+      
+      <div class="bg-black/30 border border-accent-gold/30 rounded-btn p-4 max-w-[200px] mx-auto text-center mb-5">
+        <div class="w-12 h-12 rounded-full bg-accent-gold text-primary-green flex items-center justify-center font-bold text-lg mx-auto mb-2">👸</div>
+        <h4 class="font-serif text-sm font-bold text-accent-gold" id="m-celeb-name">이름</h4>
+        <p class="text-[9px] text-white/80 mt-0.5" id="m-celeb-stats">공유 0회 • 실구매 0건</p>
+      </div>
+
+      <button onclick="closeMCeleb()" class="bg-accent-gold text-primary-green font-bold text-[10px] px-6 py-2.5 rounded-btn">축하와 함께 닫기</button>
+    </div>
+  </div>
+
+  <!-- KakaoTalk Style Notification Alert Overlay (Mobile) -->
+  <div id="m-kakao-alert-overlay" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-[#FEE500] w-full max-w-sm rounded-[24px] overflow-hidden shadow-2xl animate-scale-in border border-black/10 text-neutral-charcoal">
+      <div class="bg-[#3C3E3D] text-white px-4 py-3 flex justify-between items-center text-xs font-semibold">
+        <div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-amber-300">chat_bubble</span><span>카카오톡 주문 연동</span></div>
+        <button onclick="closeKakaoAlert()" class="text-white/80 hover:text-white"><span class="material-symbols-outlined text-[18px]">close</span></button>
+      </div>
+
+      <div class="p-4 bg-[#FCF8F5]">
+        <div class="bg-white rounded-2xl border border-[#EBEBEB] p-4 shadow-md">
+          <div class="flex items-center gap-2.5 mb-3 pb-2.5 border-b border-[#F0F0F0]">
+            <div class="w-9 h-9 rounded-full bg-primary-green flex items-center justify-center text-accent-gold text-[10px] font-serif font-bold shrink-0 shadow border border-accent-gold">AF</div>
+            <div>
+              <div class="flex items-center gap-1 font-bold text-[11px]"><span>티타임즈 화원</span><span class="material-symbols-outlined text-[13px] text-amber-500 fill-1 font-bold">verified</span></div>
+              <span class="text-[8px] text-[#A0A0A0] block mt-0.5">공식 카카오톡 주문 접수 채널</span>
+            </div>
+          </div>
+          <div class="space-y-2 text-[11px] text-[#333333] leading-relaxed">
+            <p class="font-bold text-xs text-primary-green" id="m-kakao-title">🔔 기념일 안내</p>
+            <p id="m-kakao-body-text" class="bg-surface-bg/40 p-3 rounded border border-neutral-light-border/40 font-mono text-[10px] whitespace-pre-line max-h-[160px] overflow-y-auto no-scrollbar"></p>
+          </div>
+          
+          <button onclick="sendToRealKakao()" class="w-full mt-4 bg-[#3C3E3D] hover:bg-black text-[#FEE500] font-bold py-3 rounded-xl text-center transition text-xs flex items-center justify-center gap-1 shadow-md">
+            <span class="material-symbols-outlined text-[14px]">send</span>
+            <span>대표님 오픈카톡방에 즉시 전송하기</span>
+          </button>
+        </div>
+      </div>
+      <div class="bg-[#FEE500] px-4 py-3.5 flex flex-col items-center gap-1.5 text-[9px] text-neutral-charcoal/80 border-t border-[#EAE350] text-center">
+        <span>💡 '오픈채팅방'이 열리면 복사된 주문서(Ctrl+V)를 붙여넣어 주세요.</span>
+        <button onclick="closeKakaoAlert()" class="font-bold text-neutral-charcoal hover:underline mt-0.5">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Unified Javascript logic, shares localStorage with code.html! -->
+  <script>
+    const KAKAO_CHAT_URL = "https://open.kakao.com/o/sExampleChatLink";
+    let lastCopiedMessage = "";
+
+    function openKakaoAlert(title, text) {
+      document.getElementById("m-kakao-title").innerHTML = title;
+      document.getElementById("m-kakao-body-text").innerHTML = text;
+      
+      document.getElementById("m-kakao-alert-overlay").classList.remove("hidden");
+      document.getElementById("m-kakao-alert-overlay").classList.add("flex");
+    }
+
+    function closeKakaoAlert() {
+      document.getElementById("m-kakao-alert-overlay").classList.add("hidden");
+      document.getElementById("m-kakao-alert-overlay").classList.remove("flex");
+    }
+
+    function sendToRealKakao() {
+      if (lastCopiedMessage) {
+        navigator.clipboard.writeText(lastCopiedMessage);
+      }
+      closeKakaoAlert();
+      window.open(KAKAO_CHAT_URL, "_blank");
+      showPushNotification("💬 카카오톡 연동 완료! 복사된 주문서(Ctrl+V)를 전송해 주세요.");
+    }
+
+    const DEFAULT_DB = {
+      user: { code: "VIP_QUEEN", isPremium: false, activeTab: "home", currentMode: "customer" },
+      referrals: [
+        { name: "김지아", code: "JIA_BOTANIC", shares: 45, conversions: 12 },
+        { name: "이민서", code: "MINSEO_FLORA", shares: 32, conversions: 8 },
+        { name: "VIP_QUEEN", code: "VIP_QUEEN", shares: 14, conversions: 3 },
+        { name: "박소윤", code: "SOYUN_ROSE", shares: 9, conversions: 2 },
+        { name: "최윤지", code: "YUNJI_LILY", shares: 5, conversions: 1 }
+      ],
+      orders: [
+        { id: "ORD-0001", date: "2026-05-18 10:24", customer: "김영희", recipient: "부모님", occasion: "celebration", product: "어버이 카네이션 럭셔리 감사 바구니", price: 102000, finalPrice: 102000, refCode: "JIA_BOTANIC", status: "complete" },
+        { id: "ORD-0002", date: "2026-05-19 14:15", customer: "이수진", recipient: "연인", occasion: "celebration", product: "선셋 로즈 임페리얼 골드 바구니", price: 120000, finalPrice: 102000, refCode: "MINSEO_FLORA", status: "complete" },
+        { id: "ORD-0003", date: "2026-05-20 09:40", customer: "정민호", recipient: "비즈니스 파트너", occasion: "apology", product: "로열 올리브 하모니 사과 바구니", price: 150000, finalPrice: 150000, refCode: "", status: "pending" }
+      ],
+      anniversaries: [
+        { id: "ANV-1", title: "어머니 생신", target: "parents", date: "2026-06-02" },
+        { id: "ANV-2", title: "결혼 3주년", target: "lover", date: "2026-06-18" },
+        { id: "ANV-3", title: "바이어 미팅 주간", target: "partner", date: "2026-07-05" }
+      ],
+      coupons: [
+        { id: "CPN-1", name: "15% 커뮤니티 가입 환영 할인권", discount: 0.15, code: "WELCOME_FLORA", used: false }
+      ],
+      alertsHistory: [
+        { time: "2026-05-19 09:00", text: "어머니 생신 1주일 전 - 알림톡 자동 발송 완료" }
+      ],
+      currentViralQueen: "김지아",
+      activeReferralApplied: null,
+      tempSelectedOccasion: null,
+      tempSelectedRecipient: null,
+      rsvps: { 1: false, 2: false }
+    };
+
+    let state = {};
+
+    function loadState() {
+      const stored = localStorage.getItem("flower_connect_hub_state");
+      if (stored) {
+        try { state = JSON.parse(stored); } catch (e) { state = JSON.parse(JSON.stringify(DEFAULT_DB)); }
+      } else {
+        state = JSON.parse(JSON.stringify(DEFAULT_DB));
+      }
+      saveState();
+    }
+
+    function saveState() {
+      localStorage.setItem("flower_connect_hub_state", JSON.stringify(state));
+    }
+
+    function syncTime() {
+      const d = new Date();
+      const h = String(d.getHours()).padStart(2, '0');
+      const m = String(d.getMinutes()).padStart(2, '0');
+      document.getElementById("mobile-time").innerText = `${h}:${m}`;
+    }
+
+    // Dynamic Navigation Tab routing
+    function goToTab(tabId) {
+      state.user.activeTab = tabId;
+      saveState();
+
+      // Navigation styles update
+      const items = document.querySelectorAll(".m-nav-item");
+      items.forEach(item => {
+        const text = item.querySelector("span:last-child").innerText.trim();
+        const tabMatches = (tabId === "home" && text === "홈") || 
+                           (tabId === "order" && text === "스마트 추천") || 
+                           (tabId === "lounge" && text === "소셜 라운지") || 
+                           (tabId === "mypage" && text === "내 쿠폰 & CRM");
+        
+        if (tabMatches) {
+          item.className = "m-nav-item flex flex-col items-center gap-0.5 text-primary-green";
+          item.querySelector("span:first-child").className = "material-symbols-outlined text-[20px] font-semibold";
+        } else {
+          item.className = "m-nav-item flex flex-col items-center gap-0.5 text-neutral-muted";
+          item.querySelector("span:first-child").className = "material-symbols-outlined text-[20px]";
+        }
+      });
+
+      // Update panes visibility
+      document.querySelectorAll(".m-tab-content").forEach(pane => pane.classList.add("hidden"));
+      const targetPane = document.getElementById("m-tab-" + tabId);
+      if (targetPane) targetPane.classList.remove("hidden");
+    }
+
+    // Toggle Modes (Customer vs Representative Admin)
+    function toggleMobileMode() {
+      const current = state.user.currentMode || "customer";
+      const nextMode = current === "customer" ? "admin" : "customer";
+      
+      state.user.currentMode = nextMode;
+      saveState();
+
+      const btnText = document.getElementById("mode-text");
+      const btnIcon = document.getElementById("mode-icon");
+      const clientNav = document.getElementById("mobile-app-bottom-nav");
+      
+      const tabHome = document.getElementById("m-tab-home");
+      const tabOrder = document.getElementById("m-tab-order");
+      const tabLounge = document.getElementById("m-tab-lounge");
+      const tabMypage = document.getElementById("m-tab-mypage");
+      const adminPane = document.getElementById("m-view-admin");
+
+      if (nextMode === "customer") {
+        btnText.innerText = "대표님 모드로";
+        btnIcon.innerText = "dashboard";
+        
+        clientNav.classList.remove("hidden");
+        clientNav.classList.add("flex");
+        adminPane.classList.add("hidden");
+        
+        goToTab(state.user.activeTab || "home");
+      } else {
+        btnText.innerText = "고객 모드로";
+        btnIcon.innerText = "person";
+        
+        clientNav.classList.add("hidden");
+        clientNav.classList.remove("flex");
+        
+        tabHome.classList.add("hidden");
+        tabOrder.classList.add("hidden");
+        tabLounge.classList.add("hidden");
+        tabMypage.classList.add("hidden");
+        
+        adminPane.classList.remove("hidden");
+        renderAdminPane();
+      }
+    }
+
+    // Order Wizard Flow Management
+    function mGoToStep(stepNum) {
+      document.querySelectorAll(".m-step-pane").forEach(p => p.classList.add("hidden"));
+      document.getElementById("m-step-" + stepNum).classList.remove("hidden");
+
+      // Wizard progress trackers
+      for (let i = 1; i <= 3; i++) {
+        const dot = document.getElementById("m-dot-" + i);
+        const line = document.getElementById("m-line-" + i);
+        if (i < stepNum) {
+          dot.className = "w-6 h-6 rounded-full bg-accent-gold text-primary-green flex items-center justify-center font-bold text-[10px] shadow";
+          if (line) line.className = "flex-grow h-[1px] bg-accent-gold mx-2";
+        } else if (i === stepNum) {
+          dot.className = "w-6 h-6 rounded-full bg-primary-green text-white flex items-center justify-center font-bold text-[10px] shadow";
+          if (line) line.className = "flex-grow h-[1px] bg-neutral-light-border mx-2";
+        } else {
+          dot.className = "w-6 h-6 rounded-full bg-surface-bg text-neutral-muted flex items-center justify-center font-bold text-[10px] border border-neutral-light-border";
+          if (line) line.className = "flex-grow h-[1px] bg-neutral-light-border mx-2";
+        }
+      }
+    }
+
+    function mSelectOccasion(occ) {
+      state.tempSelectedOccasion = occ;
+      const btns = document.querySelectorAll(".m-occ-btn");
+      btns.forEach(btn => {
+        if (btn.outerHTML.includes(occ)) {
+          btn.classList.add("border-accent-gold", "bg-white", "ring-2", "ring-accent-gold/20");
+        } else {
+          btn.classList.remove("border-accent-gold", "bg-white", "ring-2", "ring-accent-gold/20");
+        }
+      });
+      setTimeout(() => mGoToStep(2), 250);
+    }
+
+    function mSelectRecipient(rec) {
+      state.tempSelectedRecipient = rec;
+      const btns = document.querySelectorAll(".m-rec-btn");
+      btns.forEach(btn => {
+        if (btn.outerHTML.includes(rec)) {
+          btn.classList.add("border-accent-gold", "bg-white", "ring-2", "ring-accent-gold/20");
+        } else {
+          btn.classList.remove("border-accent-gold", "bg-white", "ring-2", "ring-accent-gold/20");
+        }
+      });
+      
+      mBuildRecommendation();
+      setTimeout(() => mGoToStep(3), 250);
+    }
+
+    function mBuildRecommendation() {
+      const occ = state.tempSelectedOccasion || "celebration";
+      const rec = state.tempSelectedRecipient || "parents";
+
+      let title = ""; let description = ""; let price = 120000;
+      let flowers = []; let message = "";
+
+      if (occ === "celebration") {
+        price = rec === "parents" ? 150000 : rec === "lover" ? 120000 : rec === "partner" ? 180000 : 90000;
+        flowers = ["샤먼트 장미", "하노이 라넌큘러스", "유칼립투스", "핑크 수국"];
+        if (rec === "parents") {
+          title = "카네이션 골든 레전드 화병 바구니";
+          description = "부모님께 기품 넘치는 최고급 아우룸 로열 카네이션 감사 구성.";
+          message = "사랑하고 공경하는 마음에 기품을 담아 보냅니다. 늘 건강하세요.";
+        } else if (rec === "lover") {
+          title = "선셋 로즈 임페리얼 로맨틱 바구니";
+          description = "연인에게 고백하는 프리미엄 골드 아모르 장미 메인 연출.";
+          message = "나의 매일이 그대 덕분에 향기로 물듭니다. 당신의 곁에서 영원할게요.";
+        } else {
+          title = "조이플 라벤더 해피 데이 바구니";
+          description = "폼폰국화와 카밀러로 디자인한 위트있고 생기 발랄한 생신 꽃바구니.";
+          message = "너의 소중한 생일을 진심으로 축하해! 매일 꽃길만 걸어!";
+        }
+      } else if (occ === "consolation") {
+        price = rec === "parents" ? 140000 : rec === "lover" ? 110000 : 160000;
+        flowers = ["백합", "화이트 라넌큘러스", "유칼립투스", "델피늄"];
+        title = "로열 실버 세레니티 힐링 바구니";
+        description = "마음의 평화와 고요함을 되찾아주는 순수한 세레니티 화이트 플라워.";
+        message = "지친 일상에 이 쉼과 꽃 향기가 자그마한 위안이 되길 소망합니다.";
+      } else {
+        price = rec === "lover" ? 115000 : rec === "partner" ? 170000 : 90000;
+        flowers = ["라벤더", "올리브 잎", "줄리엣 로즈", "파스텔 수국"];
+        title = "파스텔 리컨실 라벤더 화해 바구니";
+        description = "진실한 미안함과 올리브 잎사귀의 평화를 담아 엮어낸 화해의 레시피.";
+        message = "나의 미숙했던 서툰 말들을 깊이 반성해. 진심을 담아 미안해.";
+      }
+
+      state.activeRecommendation = { title, description, price, flowers, message, occasion: occ, recipient: rec };
+      saveState();
+
+      // Set UI
+      document.getElementById("m-rec-title").innerText = title;
+      document.getElementById("m-rec-desc").innerText = description;
+      document.getElementById("m-rec-price").innerText = price.toLocaleString() + "원";
+      document.getElementById("m-rec-card-msg").innerText = `"${message}"`;
+
+      const flows = document.getElementById("m-rec-flowers");
+      flows.innerHTML = "";
+      flowers.forEach(f => {
+        flows.innerHTML += `<span class="bg-accent-gold/15 text-accent-gold-dark border border-accent-gold/40 text-[8px] font-bold px-1.5 py-0.5 rounded-full">🌱 ${f}</span>`;
+      });
+
+      document.getElementById("m-summary-original").innerText = price.toLocaleString() + "원";
+      
+      const applied = state.activeReferralApplied;
+      if (applied) {
+        document.getElementById("m-referral-input").value = applied;
+        mApplyReferral(true);
+      } else {
+        document.getElementById("m-summary-discount-row").classList.add("hidden");
+        document.getElementById("m-coupon-badge").innerText = "적용대기";
+        document.getElementById("m-coupon-badge").className = "text-[7px] bg-neutral-light-border px-1.5 py-0.5 rounded font-bold text-neutral-muted";
+        document.getElementById("m-summary-final").innerText = price.toLocaleString() + "원";
+      }
+    }
+
+    function mApplyReferral(isAuto = false) {
+      const code = document.getElementById("m-referral-input").value.trim();
+      const rec = state.activeRecommendation;
+      if (!rec || !code) return;
+
+      state.activeReferralApplied = code;
+      saveState();
+
+      const disc = Math.round(rec.price * 0.15);
+      const final = rec.price - disc;
+
+      document.getElementById("m-summary-discount-row").classList.remove("hidden");
+      document.getElementById("m-summary-discount").innerText = `-${disc.toLocaleString()}원`;
+      document.getElementById("m-summary-final").innerText = `${final.toLocaleString()}원`;
+
+      document.getElementById("m-coupon-badge").innerText = "15% 추천할인 적용됨";
+      document.getElementById("m-coupon-badge").className = "text-[7px] bg-accent-gold/20 text-accent-gold-dark border border-accent-gold/30 px-1.5 py-0.5 rounded font-bold";
+
+      if (!isAuto) showPushNotification("🎟️ 모바일 추천 특별 할인이 적용되었습니다!");
+    }
+
+    function mExecuteOrder() {
+      const rec = state.activeRecommendation;
+      if (!rec) return;
+
+      const code = state.activeReferralApplied || "";
+      const disc = code ? Math.round(rec.price * 0.15) : 0;
+      const final = rec.price - disc;
+
+      const newOrd = {
+        id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
+        date: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        customer: "홍길동(모바일)",
+        recipient: getRecipientLabel(rec.recipient),
+        occasion: rec.occasion,
+        product: rec.title,
+        price: rec.price,
+        finalPrice: final,
+        refCode: code,
+        status: "pending"
+      };
+
+      state.orders.unshift(newOrd);
+
+      if (code) {
+        state.referrals.forEach(r => {
+          if (r.code === code) {
+            r.conversions += 1;
+            r.shares += 2;
+          }
+        });
+        state.coupons.push({
+          id: `CPN-${Math.floor(1000 + Math.random() * 9000)}`,
+          name: "15% 바이럴 동반 성취 할인권",
+          discount: 0.15,
+          code: `GIF-${Math.floor(1000 + Math.random() * 9000)}`,
+          used: false
+        });
+        state.alertsHistory.unshift({
+          time: new Date().toISOString().replace('T', ' ').substring(0, 16),
+          text: `바이럴 구매 보상 - [홍길동]님에게 모바일 초청 보상 할인권 자동 지급 완료`
+        });
+      }
+
+      state.activeReferralApplied = null;
+      saveState();
+
+      // 실서비스 카톡 전송 텍스트 생성
+      lastCopiedMessage = `[티타임즈 화원 - 모바일 주문서 접수]\n\n` +
+                          `• 주문번호: ${newOrd.id}\n` +
+                          `• 주문자명: 홍길동(모바일)\n` +
+                          `• 상황: ${rec.occasion === "celebration" ? "축하 & 기념일" : rec.occasion === "consolation" ? "위로 & 격려" : "사과 & 화해"}\n` +
+                          `• 받는대상: ${getRecipientLabel(rec.recipient)}\n` +
+                          `• 상품명: ${newOrd.product}\n` +
+                          `• 추천적용코드: ${code ? code : "없음"}\n` +
+                          `• 카드문구: "${rec.message}"\n` +
+                          `• 결제액: ${newOrd.finalPrice.toLocaleString()}원\n\n` +
+                          `* 대표님, 위 모바일 주문 내역을 전송합니다. 제작을 확정해 주세요!`;
+
+      // 클립보드 복사
+      navigator.clipboard.writeText(lastCopiedMessage).then(() => {
+        showPushNotification("📋 주문 접수 내역이 클립보드에 자동 복사되었습니다!");
+      }).catch(err => {
+        console.error("클립보드 복사 실패: ", err);
+      });
+
+      // 카카오톡 알림톡 창
+      openKakaoAlert(
+        "📝 [주문서 접수 완료]",
+        lastCopiedMessage
+      );
+
+      renderAll();
+      mGoToStep(1);
+      goToTab("mypage");
+    }
+
+    function getRecipientLabel(r) {
+      if (r === "parents") return "부모님";
+      if (r === "lover") return "연인";
+      if (r === "partner") return "바이어";
+      return "지인";
+    }
+
+    // Lounge membership control
+    function mUpgradeMembership() {
+      state.user.isPremium = true;
+      state.coupons.push({
+        id: `CPN-${Math.floor(1000 + Math.random() * 9000)}`,
+        name: "15% Aurum Club VIP 정회원 할인권",
+        discount: 0.15,
+        code: `VIP-CPN-${Math.floor(1000 + Math.random() * 9000)}`,
+        used: false
+      });
+      saveState();
+      renderAll();
+      showPushNotification("👑 Aurum Club 정회원 혜택이 성공적으로 언락되었습니다!");
+    }
+
+    function mToggleRSVP(evtId) {
+      if (!state.user.isPremium) return;
+      state.rsvps[evtId] = !state.rsvps[evtId];
+      saveState();
+      
+      const btn = document.getElementById("m-rsvp-btn-" + evtId);
+      if (state.rsvps[evtId]) {
+        btn.innerText = "✓ 신청 완료 (참석)";
+        btn.className = "w-full bg-accent-gold text-primary-green font-bold text-[9px] py-2 rounded border border-accent-gold-dark/30 shadow";
+        showPushNotification("🍷 소셜 클럽 모임 신청이 확정 보관되었습니다.");
+      } else {
+        btn.innerText = "참석 신청";
+        btn.className = "w-full bg-primary-green text-white text-[9px] font-bold py-2 rounded";
+        showPushNotification("참석 신청이 취소되었습니다.");
+      }
+    }
+
+    // CRM 기념일 관리자
+    function mAddAnniversary(e) {
+      e.preventDefault();
+      const title = document.getElementById("m-anniv-title").value.trim();
+      const target = document.getElementById("m-anniv-target").value;
+      const date = document.getElementById("m-anniv-date").value;
+      if (!title || !date) return;
+
+      state.anniversaries.push({
+        id: `ANV-${Math.floor(1000 + Math.random() * 9000)}`,
+        title, target, date
+      });
+      saveState();
+
+      document.getElementById("m-anniv-title").value = "";
+      document.getElementById("m-anniv-date").value = "";
+      renderAll();
+      showPushNotification("📅 기념일이 소중히 저장되었습니다.");
+    }
+
+    function mDeleteAnniv(id) {
+      state.anniversaries = state.anniversaries.filter(a => a.id !== id);
+      saveState();
+      renderAll();
+      showPushNotification("기념일이 안전하게 삭제되었습니다.");
+    }
+
+    function mTriggerAnnivSimulation(id) {
+      const anv = state.anniversaries.find(a => a.id === id);
+      if (!anv) return;
+
+      state.alertsHistory.unshift({
+        time: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        text: `모바일 CRM 알림 시뮬레이션 작동 - '${anv.title}' 기념일 알림톡 자동 푸시`
+      });
+      
+      state.tempSelectedOccasion = "celebration";
+      state.tempSelectedRecipient = anv.target;
+      saveState();
+
+      // 알림톡 창
+      const alertMsg = `안녕하세요, 홍길동 고객님!\n` +
+                       `소중한 사람을 위한 [${anv.title}] 기념일이 정확히 1주일 뒤로 다가왔습니다.\n\n` +
+                       `• 날짜: ${anv.date}\n` +
+                       `• 추천 상품: ${anv.title} 스페셜 감사바구니\n\n` +
+                       `대표님이 설계한 1:1 맞춤형 고품격 바구니에 마음을 전해 보세요. 본 전용 특별 초대코드가 삽입되어 예약 시 즉각 15% VIP 혜택가로 구매하실 수 있습니다.`;
+      
+      lastCopiedMessage = alertMsg;
+      navigator.clipboard.writeText(alertMsg);
+
+      openKakaoAlert(
+        "🔔 [CRM 자동 송출] 기념일 1주일 전 혜택 제안",
+        alertMsg
+      );
+
+      // Push notification banner show
+      showPushNotification(`🔔 [알림톡] 1주일 뒤는 '${anv.title}' 기념일입니다. 맞춤 꽃 특가 제안!`);
+      
+      // Navigate to order screen on banner tap!
+      const banner = document.getElementById("mobile-push-banner");
+      banner.onclick = () => {
+        goToTab("order");
+        mBuildRecommendation();
+        mGoToStep(3);
+      };
+    }
+
+    // Open/Close Share mod
+    function openShareModal() {
+      document.getElementById("m-share-modal").className = "fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end justify-center p-4";
+    }
+
+    function closeShareModal() {
+      document.getElementById("m-share-modal").className = "fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-end justify-center p-4";
+    }
+
+    function mCopyShareLink() {
+      navigator.clipboard.writeText("http://aurumflora.com/?ref=VIP_QUEEN").then(() => {
+        showPushNotification("📋 모바일 추천 초대 링크가 클립보드에 복사되었습니다.");
+      });
+    }
+
+    function mCopyModalLink() {
+      navigator.clipboard.writeText("http://aurumflora.com/?ref=VIP_QUEEN").then(() => {
+        showPushNotification("📋 추천인 링크가 복사되었습니다. 친구에게 전송해보세요!");
+      });
+    }
+
+    // Mock invite checkout
+    function mTriggerFriendMockOrder() {
+      closeShareModal();
+
+      const fake = {
+        id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
+        date: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        customer: "지인(카톡)",
+        recipient: "연인",
+        occasion: "celebration",
+        product: "선셋 로즈 임페리얼 로맨틱 바구니",
+        price: 120000,
+        finalPrice: 102000,
+        refCode: "VIP_QUEEN",
+        status: "complete"
+      };
+
+      state.orders.unshift(fake);
+      state.referrals.forEach(r => {
+        if (r.code === "VIP_QUEEN") {
+          r.conversions += 1;
+          r.shares += 3;
+        }
+      });
+      state.coupons.push({
+        id: `CPN-${Math.floor(1000 + Math.random() * 9000)}`,
+        name: "15% 지인 모바일 초청 바이럴 리워드권",
+        discount: 0.15,
+        code: `INV-${Math.floor(1000 + Math.random() * 9000)}`,
+        used: false
+      });
+
+      state.alertsHistory.unshift({
+        time: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        text: "바이럴 보상 - [홍길동]님에게 모바일 초청 보상 할인권 즉시 지급"
+      });
+
+      saveState();
+      renderAll();
+
+      showPushNotification("🎁 친구 초대 성공! 15% 기프트 보상권이 즉시 쿠폰함에 입고되었습니다!");
+    }
+
+    // Force queen coronation
+    function mSelectQueenSimulate() {
+      let maxRef = state.referrals[0];
+      state.referrals.forEach(r => {
+        if (r.conversions > maxRef.conversions) maxRef = r;
+      });
+
+      state.currentViralQueen = maxRef.name;
+      saveState();
+      renderAll();
+      renderAdminPane();
+
+      document.getElementById("m-celeb-name").innerText = maxRef.name;
+      document.getElementById("m-celeb-stats").innerText = `공유 ${maxRef.shares}회 • 실구매 결제 ${maxRef.conversions}건`;
+      
+      document.getElementById("m-queen-celeb").className = "fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4";
+    }
+
+    function closeMCeleb() {
+      document.getElementById("m-queen-celeb").className = "fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4";
+    }
+
+    function mResetSimulate() {
+      if (confirm("모든 데이터를 초기 시뮬레이션 상태로 원복하겠습니까?")) {
+        localStorage.removeItem("flower_connect_hub_state");
+        loadState();
+        showPushNotification("🔄 모바일 DB 원격 복원 완료");
+        renderAll();
+        goToTab("home");
+        
+        if (state.user.currentMode === "admin") toggleMobileMode();
+      }
+    }
+
+    // iOS system alerts simulator
+    function showPushNotification(text) {
+      const banner = document.getElementById("mobile-push-banner");
+      document.getElementById("push-banner-body").innerText = text;
+      
+      // Reset animations
+      banner.classList.add("hidden");
+      void banner.offsetWidth; // Trigger reflow
+      banner.classList.remove("hidden");
+    }
+
+    // Render logic mobile views
+    function renderAll() {
+      // Unlocking Premium Lounge Notice
+      const lock = document.getElementById("m-lounge-lock");
+      const badg = document.getElementById("mobile-premium-badge");
+      if (state.user.isPremium) {
+        lock.classList.add("hidden");
+        badg.classList.remove("hidden");
+      } else {
+        lock.classList.remove("hidden");
+        badg.classList.add("hidden");
+      }
+
+      // Home spot-queen update
+      const queen = state.referrals.find(r => r.name === state.currentViralQueen) || state.referrals[0];
+      document.getElementById("m-queen-name").innerText = queen.name;
+      document.getElementById("m-queen-desc").innerText = `누적 공유 ${queen.shares}회 • 실결제전환 ${queen.conversions}건`;
+
+      // My coupons pocket renderer
+      const coupPocket = document.getElementById("m-coupons-list");
+      coupPocket.innerHTML = "";
+      const activeCoups = state.coupons.filter(c => !c.used);
+      if (activeCoups.length === 0) {
+        coupPocket.innerHTML = `
+          <div class="text-center py-5 text-[9px] text-neutral-muted border border-dashed border-neutral-light-border bg-white rounded-mobile-card">
+            보유하신 특별 할인 쿠폰이 없습니다.
+          </div>
+        `;
+      } else {
+        activeCoups.forEach(c => {
+          coupPocket.innerHTML += `
+            <div class="bg-white rounded-mobile-card border border-accent-gold/40 shadow-sm overflow-hidden flex items-center p-3 gap-3 relative">
+              <div class="text-accent-gold-dark"><span class="material-symbols-outlined text-[28px]">confirmation_number</span></div>
+              <div class="flex-grow ticket-dashed-line pb-1.5">
+                <h5 class="font-serif font-bold text-xs text-primary-green">${c.name}</h5>
+                <span class="text-[8px] text-neutral-muted block mt-0.5">코드: ${c.code} | 상시 15% 즉시 추가할인</span>
+              </div>
+              <span class="absolute right-0 top-0 bottom-0 w-3 bg-accent-gold/10 flex items-center justify-center pointer-events-none"></span>
+            </div>
+          `;
+        });
+      }
+
+      // CRM list renderers
+      const anvContainer = document.getElementById("m-anniversaries-list");
+      anvContainer.innerHTML = "";
+      if (state.anniversaries.length === 0) {
+        anvContainer.innerHTML = `<div class="text-center py-4 text-[9px] text-neutral-muted border border-dashed border-neutral-light-border rounded-btn bg-surface-bg/30">기념일을 등록해 보세요.</div>`;
+      } else {
+        state.anniversaries.forEach(a => {
+          anvContainer.innerHTML += `
+            <div class="bg-surface-bg border border-neutral-light-border/40 p-3 rounded-btn flex justify-between items-center text-[10px] gap-2 shadow-sm">
+              <div>
+                <span class="font-bold text-neutral-charcoal block">${a.title}</span>
+                <span class="text-[8px] text-neutral-muted block mt-0.5">${getRecipientLabel(a.target)} • ${a.date}</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <button onclick="mTriggerAnnivSimulation('${a.id}')" class="bg-primary-green text-accent-gold border border-accent-gold font-bold text-[8px] px-2 py-1 rounded">알림 푸시</button>
+                <button onclick="mDeleteAnniv('${a.id}')" class="text-rose-500 hover:bg-rose-50 p-1 rounded"><span class="material-symbols-outlined text-[14px]">delete</span></button>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      // Lounge RSVP states
+      for (let i = 1; i <= 2; i++) {
+        const btn = document.getElementById("m-rsvp-btn-" + i);
+        if (btn) {
+          if (state.rsvps[i]) {
+            btn.innerText = "✓ 신청 완료 (참석)";
+            btn.className = "w-full bg-accent-gold text-primary-green font-bold text-[9px] py-2 rounded border border-accent-gold-dark/30 shadow";
+          } else {
+            btn.innerText = "참석 신청";
+            btn.className = "w-full bg-primary-green text-white text-[9px] font-bold py-2 rounded";
+          }
+        }
+      }
+    }
+
+    function renderAdminPane() {
+      const orders = state.orders;
+      const totalCount = orders.length;
+      let salesSum = 0; orders.forEach(o => salesSum += o.finalPrice);
+      let sharesSum = 0; state.referrals.forEach(r => sharesSum += r.shares);
+
+      document.getElementById("m-admin-orders").innerText = totalCount + "건";
+      document.getElementById("m-admin-sales").innerText = `₩${salesSum.toLocaleString()}`;
+      document.getElementById("m-admin-shares").innerText = sharesSum + "회";
+      document.getElementById("m-admin-queen").innerText = `👑 ${state.currentViralQueen}`;
+
+      // Admin Orders List (Mobile card style)
+      const list = document.getElementById("m-admin-orders-list");
+      list.innerHTML = "";
+      if (orders.length === 0) {
+        list.innerHTML = `<div class="text-center py-6 text-[9px] text-neutral-muted">접수된 주문 내역이 없습니다.</div>`;
+      } else {
+        orders.forEach(o => {
+          let bClass = o.status === "complete" ? "bg-emerald-100 text-emerald-800 border-emerald-300" : "bg-amber-100 text-amber-800 border-amber-300 animate-pulse";
+          let bText = o.status === "complete" ? "제작 완료됨" : "제작 대기중";
+          
+          list.innerHTML += `
+            <div class="bg-surface-bg border border-neutral-light-border/60 p-3 rounded-btn text-[10px] space-y-2 relative shadow-sm">
+              <div class="flex justify-between items-start border-b border-neutral-light-border/40 pb-1.5">
+                <div>
+                  <span class="font-bold text-neutral-charcoal block">${o.customer}</span>
+                  <span class="text-[8px] text-neutral-muted">${o.date}</span>
+                </div>
+                <button onclick="mToggleOrderStatus('${o.id}')" class="text-[8px] font-bold border px-2 py-0.5 rounded-full ${bClass}">${bText}</button>
+              </div>
+              <div class="flex justify-between">
+                <span class="font-serif font-bold text-primary-green truncate max-w-[150px] block">${o.product}</span>
+                <span class="font-bold font-serif text-accent-gold-dark shrink-0">${o.finalPrice.toLocaleString()}원</span>
+              </div>
+              <div class="text-[8px] flex justify-between text-neutral-muted">
+                <span>대상: ${o.recipient} • 상황: ${o.occasion === 'celebration'?'기념일':o.occasion==='consolation'?'위로':'사과'}</span>
+                <span class="text-accent-gold-dark font-bold">${o.refCode ? `추천코드: ${o.refCode}` : '직접 주문'}</span>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      // referrals list render
+      const refList = document.getElementById("m-admin-referrals-list");
+      refList.innerHTML = "";
+      const sorted = [...state.referrals].sort((a,b)=>b.conversions - a.conversions);
+      sorted.forEach((r, idx) => {
+        let isQueen = r.name === state.currentViralQueen ? 'bg-accent-gold/15 border-accent-gold' : 'bg-surface-bg/30 border-neutral-light-border/40';
+        let badge = idx === 0 ? "👑" : idx === 1 ? "🥈" : "🌱";
+        let conversionRate = r.shares ? Math.round((r.conversions / r.shares) * 100) : 0;
+
+        refList.innerHTML += `
+          <div class="p-3 rounded-btn border text-[10px] flex justify-between items-center ${isQueen}">
+            <div class="flex items-center gap-2">
+              <span class="text-xs shrink-0">${badge}</span>
+              <div>
+                <span class="font-bold text-neutral-charcoal block">${r.name} <code>(${r.code})</code></span>
+                <span class="text-[8px] text-neutral-muted mt-0.5 block">초대수: ${r.shares}회 • 실결제전환: ${r.conversions}건</span>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="font-bold text-primary-green block">${conversionRate}%</span>
+              <span class="text-[7px] text-neutral-muted block">전환성공</span>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function mToggleOrderStatus(id) {
+      state.orders.forEach(o => {
+        if (o.id === id) {
+          o.status = o.status === "complete" ? "pending" : "complete";
+          showPushNotification(`주문 ${id} 상태가 성공적으로 토글되었습니다.`);
+        }
+      });
+      saveState();
+      renderAll();
+      renderAdminPane();
+    }
+
+    // MAIN STARTUP INITIALIZER
+    window.addEventListener("DOMContentLoaded", () => {
+      loadState();
+      syncTime();
+      setInterval(syncTime, 60000);
+
+      // sync initial params (?ref=...)
+      const urlParams = new URLSearchParams(window.location.search);
+      const ref = urlParams.get('ref');
+      if (ref) {
+        state.activeReferralApplied = ref;
+        saveState();
+        showPushNotification(`🎟️ 추천인 [${ref}] 혜택 장착 완료 (예약 시 15% 감액)`);
+        goToTab("order");
+      } else {
+        goToTab(state.user.activeTab || "home");
+      }
+      
+      if (state.user.currentMode === "admin") {
+        state.user.currentMode = "customer"; // reset simulation view to customer on start
+        toggleMobileMode();
+      } else {
+        renderAll();
+      }
+    });
+  </script>
+</body>
+</html>
