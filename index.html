@@ -67,14 +67,25 @@
     // Seamless User Environment Detection & Redirection Router
     window.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => {
-        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-        const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) || window.innerWidth < 768;
+        const urlParams = new URLSearchParams(window.location.search);
+        const force = urlParams.get('force') || sessionStorage.getItem('forceViewMode');
         
-        if (isMobile) {
-          window.location.replace("mobile.html");
-        } else {
-          window.location.replace("desktop.html");
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) || 
+                         (navigator.maxTouchPoints > 0 && /iPad|Macintosh/i.test(userAgent)) || 
+                         window.innerWidth < 768;
+        
+        let targetPage = "desktop.html";
+        
+        if (force === "mobile") {
+          targetPage = "mobile.html";
+        } else if (force === "desktop") {
+          targetPage = "desktop.html";
+        } else if (isMobile) {
+          targetPage = "mobile.html";
         }
+        
+        window.location.replace(targetPage + window.location.search);
       }, 1500); // 1.5 seconds loading for premium visual buffer
     });
   </script>
