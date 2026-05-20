@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>티타임즈 화원 - Aurum Flora</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Manrope:wght@300;400;500;600;700;800&family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #1c1c19;
+      color: #FCF9F4;
+      font-family: 'Manrope', 'Pretendard', sans-serif;
+    }
+    .serif-title {
+      font-family: 'Playfair Display', 'Noto Serif KR', serif;
+    }
+    @keyframes goldPulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+    .gold-glow {
+      animation: goldPulse 2s infinite ease-in-out;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeInUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between items-center p-6 overflow-hidden select-none">
+
+  <!-- Background Matte Decorative Pattern -->
+  <div class="absolute inset-0 opacity-[0.02] pointer-events-none bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1526047932273-341f2a7631f9?q=80&w=1000');"></div>
+
+  <!-- Top Spacing -->
+  <div></div>
+
+  <!-- Center Branding Area -->
+  <div class="text-center z-10 animate-fade-in space-y-6">
+    <div class="w-16 h-16 rounded-full border-2 border-[#D4AF37] mx-auto flex items-center justify-center bg-[#004900] shadow-xl">
+      <span class="serif-title text-[#D4AF37] text-2xl font-bold">AF</span>
+    </div>
+    
+    <div class="space-y-2">
+      <span class="text-[10px] tracking-[0.3em] text-[#D4AF37] font-bold uppercase block">Botanical Excellence</span>
+      <h1 class="serif-title text-3xl sm:text-4xl font-bold text-white tracking-tight">티타임즈 화원</h1>
+      <p class="text-xs text-white/50 font-light mt-1">대표님의 프리미엄 네트워킹 리퍼럴 큐레이션</p>
+    </div>
+
+    <!-- Routing Loading status -->
+    <div class="py-6 flex flex-col items-center gap-3">
+      <div class="w-6 h-6 border-2 border-[#D4AF37]/20 border-t-[#D4AF37] rounded-full animate-spin"></div>
+      <p class="text-[10px] text-[#D4AF37] tracking-wider gold-glow font-medium">사용자 환경 감지 및 보안 세션 로드 중...</p>
+    </div>
+  </div>
+
+  <!-- Footer Info -->
+  <div class="text-center z-10 text-[9px] text-white/30 tracking-widest font-light">
+    © 2026 AURUM FLORA. ALL RIGHTS RESERVED.
+  </div>
+
+  <script>
+    // Seamless User Environment Detection & Redirection Router
+    window.addEventListener("DOMContentLoaded", () => {
+      setTimeout(() => {
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) || window.innerWidth < 768;
+        
+        if (isMobile) {
+          window.location.replace("mobile.html");
+        } else {
+          window.location.replace("desktop.html");
+        }
+      }, 1500); // 1.5 seconds loading for premium visual buffer
+    });
+  </script>
+</body>
+</html>
