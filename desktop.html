@@ -1,6 +1,30 @@
 <!DOCTYPE html>
 <html class="light" lang="ko">
 <head>
+  <script>
+    (function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const force = urlParams.get('force') || sessionStorage.getItem('forceViewMode');
+      
+      if (force === "desktop") {
+        sessionStorage.setItem('forceViewMode', 'desktop');
+        return;
+      }
+      if (force === "mobile") {
+        window.location.replace("mobile.html" + window.location.search);
+        return;
+      }
+      
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) || 
+                       (navigator.maxTouchPoints > 0 && /iPad|Macintosh/i.test(userAgent)) || 
+                       window.innerWidth < 768;
+      
+      if (isMobile) {
+        window.location.replace("mobile.html" + window.location.search);
+      }
+    })();
+  </script>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <title>티타임즈 화원 - Aurum Flora PC</title>
@@ -520,7 +544,12 @@
   <footer class="bg-surface-dark text-white/40 py-8 px-6 text-center text-xs border-t border-accent-gold/10 mt-12">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
       <span class="serif-title text-accent-gold font-bold">티타임즈 화원 - Aurum Flora</span>
-      <span>© 2026 AURUM FLORA. ALL RIGHTS RESERVED.</span>
+      <div class="flex items-center gap-4">
+        <button onclick="goToMobileView()" class="bg-accent-gold/10 hover:bg-accent-gold/25 border border-accent-gold/30 text-accent-gold text-[10px] font-bold px-3 py-1.5 rounded transition flex items-center gap-1 shadow-sm">
+          <span class="material-symbols-outlined text-[12px]">smartphone</span>모바일 버전 보기
+        </button>
+        <span>© 2026 AURUM FLORA. ALL RIGHTS RESERVED.</span>
+      </div>
     </div>
   </footer>
 
@@ -528,6 +557,13 @@
        UNIFIED CORE JAVASCRIPT SYSTEM
        ============================================== -->
   <script>
+    function goToMobileView() {
+      sessionStorage.setItem('forceViewMode', 'mobile');
+      const searchParams = new URLSearchParams(window.location.search);
+      searchParams.set('force', 'mobile');
+      window.location.href = "mobile.html?" + searchParams.toString();
+    }
+
     // 카카오 오픈톡 링크 주소 설정 (실제 대표님 주소로 커스텀 가능)
     const KAKAO_CHAT_URL = "https://open.kakao.com/o/sExampleChatLink"; 
 
