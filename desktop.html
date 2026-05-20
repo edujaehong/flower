@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>티타임즈 화원 - Aurum Flora PC</title>
+  
+  <!-- Tailwind CSS & Plugins -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  
+  <!-- Web Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Manrope:wght@300;400;500;600;700;800&family=Noto+Serif+KR:wght@500;600;700&family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-bg": "#fcf9f4",
+            "surface-card": "#ffffff",
+            "surface-dim": "#f0ede9",
+            "surface-dark": "#1c1c19",
+            "primary-green": "#004900", // Deep forest green
+            "primary-dark-green": "#003300",
+            "accent-gold": "#D4AF37", // Elegant gold
+            "accent-gold-dark": "#b59228",
+            "neutral-charcoal": "#2d2d2a",
+            "neutral-muted": "#707a6a",
+            "neutral-light-border": "#e5e2dd",
+          },
+          fontFamily: {
+            serif: ["Playfair Display", "Noto Serif KR", "serif"],
+            sans: ["Manrope", "Pretendard", "sans-serif"],
+          },
+          borderRadius: {
+            "card-lg": "24px",
+            "card-sm": "12px",
+            "btn": "8px",
+          },
+          boxShadow: {
+            "ambient-gold": "0 10px 30px rgba(212, 175, 55, 0.08)",
+            "ambient-green": "0 10px 30px rgba(0, 73, 0, 0.05)",
+            "premium-lift": "0 20px 40px rgba(0, 0, 0, 0.06)",
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Premium custom animation and transitions */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes goldGlow {
+      0%, 100% { box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); border-color: rgba(212, 175, 55, 0.4); }
+      50% { box-shadow: 0 0 25px rgba(212, 175, 55, 0.6); border-color: rgba(212, 175, 55, 1); }
+    }
+
+    .animate-fade-in-up { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .animate-scale-in { animation: scaleIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .gold-glowing { animation: goldGlow 3s infinite ease-in-out; }
+
+    /* Hide scrollbars */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Glassmorphism */
+    .glass-premium {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+  </style>
+</head>
+<body class="bg-surface-bg text-neutral-charcoal font-sans min-h-screen flex flex-col antialiased selection:bg-accent-gold/20">
+
+  <!-- ==============================================
+       LIVE DEPLOYMENT HEADER Warning (Representative Toggles)
+       ============================================== -->
+  <div class="bg-primary-green text-[#ffffff] px-6 py-2.5 text-xs flex justify-between items-center border-b border-accent-gold/20 z-40 shadow-sm">
+    <div class="flex items-center gap-2">
+      <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span class="font-medium tracking-wide">티타임즈 화원 - 실서비스 론칭 데스크톱</span>
+    </div>
+    <div class="flex items-center bg-black/30 rounded-full p-0.5 border border-white/10 text-[10px]">
+      <button onclick="switchPCMode('customer')" id="pc-btn-customer" class="px-4 py-1 rounded-full bg-accent-gold text-primary-green font-bold shadow">고객 서비스 모드</button>
+      <button onclick="switchPCMode('admin')" id="pc-btn-admin" class="px-4 py-1 rounded-full text-white/70 hover:text-white font-medium transition">대표님 관리자 페이지</button>
+    </div>
+  </div>
+
+  <!-- Main Website Header -->
+  <header class="bg-white/95 backdrop-blur-md py-4 px-6 md:px-12 border-b border-neutral-light-border/40 flex justify-between items-center shadow-sm sticky top-0 z-30">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-primary-green border-2 border-accent-gold flex items-center justify-center text-accent-gold font-serif text-base font-bold shadow-md">AF</div>
+      <div>
+        <h1 class="font-serif text-lg font-bold tracking-tight text-primary-green leading-none">티타임즈 화원</h1>
+        <p class="text-[9px] uppercase font-bold tracking-widest text-accent-gold mt-1">Aurum Flora Premium Boutique</p>
+      </div>
+    </div>
+    
+    <nav id="pc-customer-nav" class="flex items-center gap-8 text-xs font-semibold">
+      <button onclick="switchPCTab('home')" class="pc-nav-tab text-primary-green border-b-2 border-accent-gold px-1 py-1.5 transition">스토리 & 갤러리</button>
+      <button onclick="switchPCTab('order')" class="pc-nav-tab text-neutral-muted hover:text-primary-green px-1 py-1.5 transition">스마트 주문</button>
+      <button onclick="switchPCTab('lounge')" class="pc-nav-tab text-neutral-muted hover:text-primary-green px-1 py-1.5 transition flex items-center gap-0.5">
+        VIP 라운지<span class="material-symbols-outlined text-[14px] text-accent-gold">lock</span>
+      </button>
+      <button onclick="switchPCTab('mypage')" class="pc-nav-tab text-neutral-muted hover:text-primary-green px-1 py-1.5 transition">내 기념일 & 쿠폰</button>
+    </nav>
+
+    <div class="flex items-center gap-3">
+      <span id="pc-membership-badge" class="hidden text-[9px] bg-accent-gold/15 text-accent-gold-dark border border-accent-gold/40 px-2.5 py-0.5 rounded-full font-bold">AURUM VIP</span>
+      <button onclick="openPCReferral()" class="text-xs bg-accent-gold text-primary-green font-bold px-4 py-2 rounded hover:bg-accent-gold-dark hover:text-white transition flex items-center gap-1 shadow-sm">
+        <span class="material-symbols-outlined text-[14px]">share</span>초대 및 공유
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-grow max-w-7xl w-full mx-auto p-6 md:p-12">
+    
+    <!-- PC TAB: HOME -->
+    <div id="pc-tab-home" class="pc-tab-content block animate-fade-in-up space-y-12">
+      <!-- Hero Banner -->
+      <div class="relative rounded-card-lg overflow-hidden h-[340px] shadow-premium-lift group">
+        <div class="absolute inset-0 bg-cover bg-center transition-all duration-700 group-hover:scale-105" style="background-image: url('https://images.unsplash.com/photo-1526047932273-341f2a7631f9?q=80&w=1000&auto=format&fit=crop');">
+          <div class="absolute inset-0 bg-gradient-to-t from-primary-green/90 via-black/35 to-transparent"></div>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 p-8 md:p-12 text-white flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+          <div class="max-w-2xl">
+            <span class="text-[10px] uppercase tracking-widest text-accent-gold font-bold bg-accent-gold/10 px-2 py-0.5 rounded border border-accent-gold/20">Petals & Prestige</span>
+            <h2 class="font-serif text-2xl sm:text-4xl font-bold leading-tight text-white mt-2">품격 있는 특별한 화원, Aurum Flora</h2>
+            <p class="text-white/80 text-xs sm:text-sm mt-2 font-light max-w-xl">대표님의 비즈니스 네트워크 기반 가장 세련되고 존경을 표할 수 있는 플로랄 큐레이션 디자인을 설계합니다.</p>
+          </div>
+          <button onclick="switchPCTab('order')" class="gold-glowing bg-accent-gold text-primary-green font-bold text-xs px-6 py-3.5 rounded hover:bg-white hover:text-primary-green transition-all duration-300 flex items-center gap-1.5 shrink-0 shadow-lg">
+            <span>3초 스마트 주문하기</span>
+            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Viral Queen & Curated grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Viral Queen Spotlight -->
+        <div class="bg-white border border-accent-gold/30 p-6 rounded-card-lg shadow-ambient-gold flex flex-col justify-between relative overflow-hidden">
+          <div class="absolute -right-4 -top-4 w-24 h-24 bg-accent-gold/5 rounded-full blur-xl pointer-events-none"></div>
+          <div>
+            <span class="text-[10px] bg-accent-gold/10 text-accent-gold-dark px-2.5 py-1 rounded font-bold uppercase tracking-wider block w-fit mb-4 border border-accent-gold/20">🏆 이달의 바이럴 퀸</span>
+            <div class="flex items-center gap-4 mb-5">
+              <div class="w-14 h-14 rounded-full border-2 border-accent-gold flex items-center justify-center text-2xl bg-surface-bg shadow-sm" id="pc-queen-avatar">👑</div>
+              <div>
+                <h4 class="font-serif text-base font-bold text-primary-green" id="pc-queen-name">-</h4>
+                <p class="text-[10px] text-neutral-muted mt-0.5">커뮤니티를 빛낸 최우수 바이럴 파트너</p>
+              </div>
+            </div>
+            <div class="bg-surface-bg p-4 rounded-card-sm border border-neutral-light-border/40 text-xs space-y-3 mb-5">
+              <div class="flex justify-between"><span>누적 바이럴 공유:</span><span class="font-bold text-primary-green" id="pc-queen-shares">0회</span></div>
+              <div class="flex justify-between"><span>실결제추천 전환:</span><span class="font-bold text-accent-gold-dark" id="pc-queen-conversions">0건</span></div>
+            </div>
+          </div>
+          <button onclick="openPCReferral()" class="w-full bg-primary-green text-accent-gold border border-accent-gold text-xs font-bold py-3 rounded hover:bg-accent-gold hover:text-primary-green transition duration-300">나의 초대코드 공유하기</button>
+        </div>
+
+        <!-- Flowers Collections -->
+        <div class="lg:col-span-2 bg-white border border-neutral-light-border/50 p-6 rounded-card-lg shadow-ambient-green flex flex-col justify-between">
+          <div>
+            <h3 class="font-serif text-sm font-bold text-primary-green mb-4 uppercase tracking-wider border-b pb-2">Season Curated Collections</h3>
+            <div class="grid grid-cols-3 gap-4">
+              <div class="group relative rounded-xl overflow-hidden aspect-square border shadow-sm">
+                <img src="https://images.unsplash.com/photo-1561181286-d3fee7d55364?q=80&w=300&auto=format&fit=crop" class="w-full h-full object-cover transition duration-500 group-hover:scale-105">
+                <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center"><span class="text-white text-xs font-serif font-bold">아우룸 피오니</span></div>
+              </div>
+              <div class="group relative rounded-xl overflow-hidden aspect-square border shadow-sm">
+                <img src="https://images.unsplash.com/photo-1596436889106-be35e843f974?q=80&w=300&auto=format&fit=crop" class="w-full h-full object-cover transition duration-500 group-hover:scale-105">
+                <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center"><span class="text-white text-xs font-serif font-bold">임페리얼 백합</span></div>
+              </div>
+              <div class="group relative rounded-xl overflow-hidden aspect-square border shadow-sm">
+                <img src="https://images.unsplash.com/photo-1520763185298-1b434c919102?q=80&w=300&auto=format&fit=crop" class="w-full h-full object-cover transition duration-500 group-hover:scale-105">
+                <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center"><span class="text-white text-xs font-serif font-bold">로열 실버 수국</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="text-[10px] text-neutral-muted text-right mt-4 italic">
+            * 대표님이 매주 직접 산지에서 선별 수입한 최상급 절화 메타 데이터로 구성됩니다.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PC TAB: SMART ORDER -->
+    <div id="pc-tab-order" class="pc-tab-content hidden animate-fade-in-up">
+      <div class="max-w-3xl mx-auto bg-white border border-neutral-light-border/60 rounded-card-lg overflow-hidden shadow-premium-lift">
+        <div class="bg-primary-green p-6 text-white flex justify-between items-center">
+          <div>
+            <span class="text-[9px] uppercase tracking-widest text-accent-gold font-bold">Smart Order Wizard</span>
+            <h3 class="font-serif text-base font-bold mt-0.5">상황 및 대상 맞춤형 스마트 3초 주문</h3>
+          </div>
+          <span class="material-symbols-outlined text-accent-gold text-[28px]">local_florist</span>
+        </div>
+        
+        <div class="p-8">
+          <!-- Wizard Progress -->
+          <div class="flex justify-between items-center max-w-md mx-auto mb-8 text-xs">
+            <div class="flex flex-col items-center">
+              <div id="pc-dot-1" class="w-8 h-8 rounded-full bg-primary-green text-white flex items-center justify-center font-bold shadow gold-glowing">1</div>
+              <span class="font-bold text-primary-green mt-1">마음의 상황</span>
+            </div>
+            <div id="pc-line-1" class="flex-grow h-[1px] bg-neutral-light-border mx-3"></div>
+            <div class="flex flex-col items-center">
+              <div id="pc-dot-2" class="w-8 h-8 rounded-full bg-surface-bg text-neutral-muted flex items-center justify-center font-bold border border-neutral-light-border">2</div>
+              <span class="text-neutral-muted mt-1">받는 대상</span>
+            </div>
+            <div id="pc-line-2" class="flex-grow h-[1px] bg-neutral-light-border mx-3"></div>
+            <div class="flex flex-col items-center">
+              <div id="pc-dot-3" class="w-8 h-8 rounded-full bg-surface-bg text-neutral-muted flex items-center justify-center font-bold border border-neutral-light-border">3</div>
+              <span class="text-neutral-muted mt-1">큐레이션 및 접수</span>
+            </div>
+          </div>
+
+          <!-- Step 1 -->
+          <div id="pc-step-1" class="pc-step-pane">
+            <h4 class="text-sm font-bold text-center text-primary-green mb-6">마음의 전하고 싶은 상황을 선택해 주세요</h4>
+            <div class="grid grid-cols-3 gap-4">
+              <button onclick="pcSelectOccasion('celebration')" class="pc-occ-btn p-6 rounded-card-sm border bg-surface-bg hover:bg-white text-center transition-all duration-300 shadow-sm hover:border-accent-gold">
+                <span class="material-symbols-outlined text-accent-gold block text-[36px] mb-2">celebration</span>
+                <span class="text-xs font-bold block text-primary-green">축하 & 기념일</span>
+              </button>
+              <button onclick="pcSelectOccasion('consolation')" class="pc-occ-btn p-6 rounded-card-sm border bg-surface-bg hover:bg-white text-center transition-all duration-300 shadow-sm hover:border-accent-gold">
+                <span class="material-symbols-outlined text-accent-gold block text-[36px] mb-2">favorite</span>
+                <span class="text-xs font-bold block text-primary-green">위로 & 격려</span>
+              </button>
+              <button onclick="pcSelectOccasion('apology')" class="pc-occ-btn p-6 rounded-card-sm border bg-surface-bg hover:bg-white text-center transition-all duration-300 shadow-sm hover:border-accent-gold">
+                <span class="material-symbols-outlined text-accent-gold block text-[36px] mb-2">sentiment_satisfied</span>
+                <span class="text-xs font-bold block text-primary-green">사과 & 화해</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div id="pc-step-2" class="pc-step-pane hidden">
+            <h4 class="text-sm font-bold text-center text-primary-green mb-6">이 선물을 전달 받으실 소중한 분은 누구인가요?</h4>
+            <div class="grid grid-cols-4 gap-3 mb-6">
+              <button onclick="pcSelectRecipient('parents')" class="pc-rec-btn p-4 rounded border bg-surface-bg text-center text-xs font-bold hover:border-accent-gold transition">부모님 / 은사님</button>
+              <button onclick="pcSelectRecipient('lover')" class="pc-rec-btn p-4 rounded border bg-surface-bg text-center text-xs font-bold hover:border-accent-gold transition">연인 / 배우자</button>
+              <button onclick="pcSelectRecipient('partner')" class="pc-rec-btn p-4 rounded border bg-surface-bg text-center text-xs font-bold hover:border-accent-gold transition">비즈니스 파트너</button>
+              <button onclick="pcSelectRecipient('friend')" class="pc-rec-btn p-4 rounded border bg-surface-bg text-center text-xs font-bold hover:border-accent-gold transition">친구 / 지인</button>
+            </div>
+            <button onclick="pcGoToStep(1)" class="text-xs text-neutral-muted hover:text-primary-green flex items-center mx-auto gap-1"><span class="material-symbols-outlined text-[14px]">arrow_back</span> 이전 단계로</button>
+          </div>
+
+          <!-- Step 3 -->
+          <div id="pc-step-3" class="pc-step-pane hidden space-y-6">
+            <!-- Recipe display -->
+            <div class="bg-surface-bg border border-accent-gold rounded-card-sm p-6 space-y-4 shadow-sm relative">
+              <div class="absolute top-4 right-4 text-accent-gold-dark"><span class="material-symbols-outlined">verified</span></div>
+              <div class="flex justify-between font-serif font-bold text-primary-green text-sm border-b pb-2">
+                <h5 id="pc-rec-title" class="text-base">큐레이션 추천바구니</h5>
+                <span id="pc-rec-price" class="text-accent-gold-dark text-base shrink-0">120,000원</span>
+              </div>
+              <p id="pc-rec-desc" class="text-xs text-neutral-charcoal leading-relaxed"></p>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="text-[10px] text-neutral-muted font-semibold mr-1">주요 레시피:</span>
+                <div id="pc-rec-flowers" class="flex flex-wrap gap-1"></div>
+              </div>
+              <div class="bg-white border-l-4 border-accent-gold p-4 text-xs italic font-serif leading-relaxed text-neutral-charcoal" id="pc-rec-msg"></div>
+            </div>
+
+            <!-- Promocode / Voucher input -->
+            <div class="bg-white border rounded-card-sm p-4 text-xs flex gap-3 shadow-sm">
+              <div class="flex-grow">
+                <label class="block text-[10px] font-bold text-neutral-muted mb-1 uppercase tracking-wider">추천인 코드 및 쿠폰 적용</label>
+                <input type="text" id="pc-referral-input" placeholder="초대코드 또는 쿠폰 입력 (예: VIP_QUEEN)" class="w-full border rounded text-xs px-3 py-2 focus:ring-accent-gold focus:border-accent-gold border-neutral-light-border">
+              </div>
+              <button onclick="pcApplyReferral()" class="bg-primary-green hover:bg-primary-dark-green text-white font-bold px-6 py-2 rounded self-end shrink-0 transition">쿠폰 적용</button>
+            </div>
+
+            <!-- Price summary -->
+            <div class="bg-surface-bg border rounded-card-sm p-4 text-xs space-y-2 shadow-sm">
+              <div class="flex justify-between"><span>정상 큐레이션 가액:</span><span id="pc-summary-original">120,000원</span></div>
+              <div class="flex justify-between text-rose-500 hidden" id="pc-summary-disc-row"><span>추천 할인 (15%):</span><span id="pc-summary-disc">-0원</span></div>
+              <div class="flex justify-between border-t pt-2.5 font-bold text-sm text-primary-green"><span>최종 실 접수 가격:</span><span id="pc-summary-final" class="text-accent-gold-dark text-base">120,000원</span></div>
+            </div>
+
+            <button onclick="pcExecuteCheckout()" class="w-full bg-primary-green text-white font-bold py-4 rounded-btn text-xs hover:bg-primary-dark-green transition shadow-md flex items-center justify-center gap-1.5"><span class="material-symbols-outlined text-[18px]">chat</span> 주문 완료 및 카톡으로 전송하기</button>
+            <button onclick="pcGoToStep(2)" class="text-xs text-neutral-muted block mx-auto hover:underline">이전 단계로</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- PC TAB: PREMIUM VIP LOUNGE -->
+    <div id="pc-tab-lounge" class="pc-tab-content hidden animate-fade-in-up relative min-h-[400px]">
+      <!-- Blur Lock Overlay -->
+      <div id="pc-lounge-lock" class="absolute inset-0 z-20 glass-premium border border-accent-gold/40 rounded-card-lg flex flex-col items-center justify-center text-center p-8">
+        <span class="material-symbols-outlined text-[48px] text-accent-gold gold-glowing mb-3">lock_open_right</span>
+        <span class="text-[10px] uppercase tracking-wider text-accent-gold font-bold block">Premium Lounge Board</span>
+        <h3 class="font-serif text-xl sm:text-2xl font-bold text-primary-green mt-2">VIP 정회원 전용 오프라인 살롱 보드</h3>
+        <p class="text-xs text-neutral-muted max-w-md mt-2 mb-6 leading-relaxed">
+          본 클래스 및 소셜 와인 파티 정보는 **'Aurum Club' (월 29,000원)** 전용 정회원 전용 리스트입니다.
+        </p>
+        <button onclick="pcUpgradeMembership()" class="bg-primary-green text-white border border-accent-gold font-bold text-xs px-8 py-3 rounded shadow-md hover:bg-[#003300] transition">Aurum Club VIP 멤버십 가입 및 보드 즉시 해제</button>
+      </div>
+
+      <!-- Unlocked Content -->
+      <div class="bg-white border rounded-card-lg p-8 shadow-ambient-green space-y-6">
+        <div class="border-b pb-3 mb-6">
+          <h3 class="font-serif text-lg font-bold text-primary-green">VIP Social & Class Announcements</h3>
+          <p class="text-neutral-muted text-xs mt-1">VIP 정회원님만을 위해 준비된 살롱 모임 정보입니다. 선착순으로 조기 마감될 수 있습니다.</p>
+        </div>
+        
+        <div class="space-y-4">
+          <div class="bg-surface-bg border border-accent-gold/30 rounded-card-sm p-5 flex justify-between items-center gap-6 shadow-sm">
+            <div>
+              <span class="bg-primary-green text-white text-[9px] font-bold px-2 py-0.5 rounded">리스 클래스</span>
+              <h4 class="font-serif font-bold text-primary-green text-sm mt-1.5">초여름 밤의 프라이빗 리스 데코 살롱 강좌</h4>
+              <p class="text-xs text-neutral-muted leading-relaxed mt-1">대표님이 직접 직수입한 최고급 드라이 카네이션과 수제 자재를 이용하는 고감도 강좌.</p>
+            </div>
+            <button onclick="pcToggleRSVP(1)" id="pc-rsvp-btn-1" class="bg-primary-green text-white font-bold text-xs px-5 py-2.5 rounded shrink-0 hover:bg-primary-dark-green transition">참석 신청</button>
+          </div>
+
+          <div class="bg-surface-bg border border-accent-gold/30 rounded-card-sm p-5 flex justify-between items-center gap-6 shadow-sm">
+            <div>
+              <span class="bg-accent-gold text-primary-green text-[9px] font-bold px-2 py-0.5 rounded">와인 네트워킹</span>
+              <h4 class="font-serif font-bold text-primary-green text-sm mt-1.5">오월의 보타니컬 아틀리에 와인 소셜 교류 파티</h4>
+              <p class="text-xs text-neutral-muted leading-relaxed mt-1">비즈니스 협업 네트워킹 및 살롱 챔버 샴페인 교류 파티.</p>
+            </div>
+            <button onclick="pcToggleRSVP(2)" id="pc-rsvp-btn-2" class="bg-primary-green text-white font-bold text-xs px-5 py-2.5 rounded shrink-0 hover:bg-primary-dark-green transition">참석 신청</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PC TAB: MY PAGE & CRM -->
+    <div id="pc-tab-mypage" class="pc-tab-content hidden animate-fade-in-up grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- CRM Anniversary Register -->
+      <div class="lg:col-span-2 bg-white border p-6 md:p-8 rounded-card-lg shadow-ambient-green space-y-6">
+        <h3 class="font-serif text-base font-bold text-primary-green flex items-center gap-2 border-b pb-2">
+          <span class="material-symbols-outlined text-[20px]">calendar_today</span>기념일 CRM 예약 스케줄러
+        </h3>
+        <p class="text-xs text-neutral-muted mt-1 leading-relaxed">소중한 비즈니스 파트너나 가족의 기념일을 입력해 보세요. 1주일 전 알림톡을 가상 송출하여 최상의 맞춤 꽃바구니를 비서처럼 바로 준비하도록 돕습니다.</p>
+        
+        <form onsubmit="pcAddAnniversary(event)" class="grid grid-cols-3 gap-3 bg-surface-bg p-4 border rounded text-xs shadow-sm">
+          <div>
+            <label class="block text-[10px] font-bold text-neutral-muted mb-1">기념일 명칭</label>
+            <input type="text" id="pc-anniv-title" placeholder="예: 어머님 칠순" required class="w-full border rounded text-xs px-3 py-2 bg-white border-neutral-light-border focus:ring-accent-gold">
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-neutral-muted mb-1">전달 대상</label>
+            <select id="pc-anniv-target" class="w-full border rounded text-xs px-2.5 py-2 bg-white border-neutral-light-border focus:ring-accent-gold">
+              <option value="parents">부모님 / 은사님</option>
+              <option value="lover">연인 / 배우자</option>
+              <option value="partner">비즈니스 파트너</option>
+              <option value="friend">친구 / 지인</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-neutral-muted mb-1">알림 날짜</label>
+            <div class="flex gap-2">
+              <input type="date" id="pc-anniv-date" required class="flex-grow border rounded text-xs px-2 py-1.5 bg-white border-neutral-light-border focus:ring-accent-gold">
+              <button type="submit" class="bg-primary-green text-white font-bold px-4 py-1.5 rounded transition hover:bg-primary-dark-green shrink-0 shadow-sm">추가</button>
+            </div>
+          </div>
+        </form>
+
+        <div class="space-y-3" id="pc-anniversaries-list"></div>
+      </div>
+
+      <!-- Coupon locker -->
+      <div class="lg:col-span-1 bg-white border p-6 rounded-card-lg shadow-ambient-gold space-y-6 flex flex-col justify-between">
+        <div class="space-y-4">
+          <h3 class="font-serif text-sm font-bold text-primary-green flex items-center gap-1 border-b pb-2"><span class="material-symbols-outlined">confirmation_number</span>보유 VIP 쿠폰함</h3>
+          <div id="pc-coupons-list" class="space-y-3"></div>
+        </div>
+
+        <div class="bg-primary-green text-white p-5 rounded-card-sm border border-accent-gold shadow-md space-y-3 mt-4">
+          <span class="font-bold text-accent-gold text-xs block tracking-wider">🔗 나의 초대 리퍼럴 고유 코드</span>
+          <p class="text-white/80 text-[10px] leading-relaxed font-light">본 초대 링크로 들어온 지인이 결제 완료할 때마다 고객님의 쿠폰함과 지인의 결제선에 **상시 15% 감사 기프트권**이 자동 적립됩니다.</p>
+          <div class="bg-black/30 p-2.5 rounded flex justify-between items-center gap-2 select-all border border-white/10 text-xs">
+            <code class="text-accent-gold font-serif text-[11px]" id="pc-referral-link-code">http://aurumflora.com/?ref=VIP_QUEEN</code>
+            <button onclick="pcCopyLink()" class="bg-accent-gold text-primary-green font-bold px-3 py-1 rounded shrink-0 transition text-[10px] hover:bg-white hover:text-primary-green">복사</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PC VIEW: ADMIN BOSS PANE -->
+    <div id="pc-view-admin" class="hidden animate-fade-in-up space-y-8">
+      <div class="border-b pb-2">
+        <h2 class="font-serif text-lg font-bold text-primary-green flex items-center gap-2"><span class="material-symbols-outlined">dashboard</span>티타임즈 화원 실서비스 통합 대시보드 (어드민)</h2>
+        <p class="text-xs text-neutral-muted mt-1">접수되는 모든 라이브 주문과 리퍼럴 공유 성공 수치, 이달의 바이럴 퀸을 확인하고 통제합니다.</p>
+      </div>
+
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 text-xs font-semibold">
+        <div class="bg-white border rounded p-5 shadow-sm"><span class="text-neutral-muted block text-[10px] uppercase">총 접수 주문</span><span id="pc-adm-orders" class="font-serif text-2xl font-bold text-primary-green mt-1.5 block">0건</span></div>
+        <div class="bg-white border rounded p-5 shadow-sm"><span class="text-neutral-muted block text-[10px] uppercase">총 누적 결제액</span><span id="pc-adm-sales" class="font-serif text-2xl font-bold text-accent-gold-dark mt-1.5 block">₩0</span></div>
+        <div class="bg-white border rounded p-5 shadow-sm"><span class="text-neutral-muted block text-[10px] uppercase">바이럴 링크 공유</span><span id="pc-adm-shares" class="font-serif text-2xl font-bold text-primary-green mt-1.5 block">0회</span></div>
+        <div class="bg-accent-gold/15 border border-accent-gold rounded p-5 shadow-sm"><span class="text-accent-gold-dark block text-[10px] uppercase">이달의 바이럴 퀸</span><span id="pc-adm-queen" class="font-serif text-sm font-bold text-neutral-charcoal mt-1.5 block">👑 미정</span></div>
+      </div>
+
+      <div class="flex gap-3">
+        <button onclick="pcAdminSelectQueen()" class="bg-accent-gold text-primary-green border border-accent-gold font-bold text-xs px-5 py-3 rounded shadow-sm hover:bg-accent-gold-dark hover:text-white transition flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">military_tech</span>1위 멤버 이달의 바이럴 퀸 대관식 열기</button>
+        <button onclick="masterResetSimulation()" class="bg-rose-50 border border-rose-200 text-rose-600 font-bold text-xs px-5 py-3 rounded hover:bg-rose-100 transition">전체 로컬 데이터 리셋</button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 bg-white border rounded-card-lg p-6 shadow-sm overflow-x-auto">
+          <h3 class="font-serif text-sm font-bold text-primary-green mb-4">실시간 주문 및 상태 토글 (PC 어드민)</h3>
+          <table class="w-full text-left text-xs">
+            <thead><tr class="bg-surface-bg border-b text-neutral-muted">
+              <th class="py-3 px-4">고객(구분)</th><th class="py-3 px-4">큐레이션 상품</th><th class="py-3 px-4">결제액</th><th class="py-3 px-4 text-center">제작 및 전송상태</th>
+            </tr></thead>
+            <tbody id="pc-adm-orders-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="lg:col-span-1 bg-white border rounded-card-lg p-6 shadow-sm space-y-6">
+          <h3 class="font-serif text-sm font-bold text-primary-green border-b pb-2">리퍼럴 활동 통계 (실시간 전환율)</h3>
+          <div id="pc-adm-referrals-list" class="space-y-3"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ==============================================
+       SIMULATION POPUP & CUSTOM OVERLAYS
+       ============================================== -->
+       
+  <!-- KakaoTalk Style Notification Alert Overlay -->
+  <div id="kakao-alert-overlay" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-[#FEE500] w-full max-w-md rounded-[20px] overflow-hidden shadow-2xl animate-scale-in border border-[#000000]/10 text-neutral-charcoal">
+      <div class="bg-[#3C3E3D] text-[#ffffff] px-4 py-3 flex justify-between items-center text-xs font-semibold">
+        <div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-amber-300">chat_bubble</span><span>카카오 알림톡 서비스 연동</span></div>
+        <button onclick="closeKakaoAlert()" class="text-white/80 hover:text-white"><span class="material-symbols-outlined text-[18px]">close</span></button>
+      </div>
+
+      <div class="p-6 bg-[#FCF8F5]">
+        <div class="bg-white rounded-xl border border-[#EBEBEB] p-5 shadow-md">
+          <div class="flex items-center gap-3 mb-4 pb-3 border-b border-[#F0F0F0]">
+            <div class="w-10 h-10 rounded-full bg-primary-green flex items-center justify-center text-accent-gold text-sm font-serif font-bold shrink-0 shadow">AF</div>
+            <div>
+              <div class="flex items-center gap-1 font-bold text-sm"><span>티타임즈 화원</span><span class="material-symbols-outlined text-[15px] text-amber-500 fill-1 font-bold">verified</span></div>
+              <span class="text-[9px] text-[#A0A0A0] block mt-0.5">공식 카카오톡 주문 접수 알림 채널</span>
+            </div>
+          </div>
+          <div class="space-y-3 text-xs text-[#333333] leading-relaxed">
+            <p class="font-bold text-sm text-primary-green" id="kakao-title">🔔 기념일 안내</p>
+            <p id="kakao-body-text" class="bg-surface-bg/40 p-3 rounded border border-neutral-light-border/40 font-mono text-[11px] whitespace-pre-line"></p>
+          </div>
+          
+          <button onclick="sendToRealKakao()" class="w-full mt-5 bg-[#3C3E3D] hover:bg-black text-[#FEE500] font-bold py-3 rounded-lg text-center transition text-xs flex items-center justify-center gap-1 shadow-md">
+            <span class="material-symbols-outlined text-[15px]">send</span>
+            <span>대표님 카카오톡 오픈채팅방에 즉시 전송하기</span>
+          </button>
+        </div>
+      </div>
+      <div class="bg-[#FEE500] px-5 py-4 flex justify-between items-center text-[10px] text-neutral-charcoal/70 border-t border-[#EAE350]">
+        <span>💡 '오픈채팅방'이 열리면 복사된 주문서(Ctrl+V)를 붙여넣어 주세요.</span>
+        <button onclick="closeKakaoAlert()" class="font-bold text-neutral-charcoal hover:underline">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PC Referral Modal -->
+  <div id="pc-referral-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-card-lg overflow-hidden border border-accent-gold/40 shadow-2xl animate-scale-in p-8">
+      <div class="flex justify-between items-center border-b pb-4 mb-5">
+        <h4 class="font-serif text-base font-bold text-primary-green flex items-center gap-2"><span class="material-symbols-outlined text-accent-gold">diversity_2</span><span>초대 추천 바이럴 엔진 시뮬레이터</span></h4>
+        <button onclick="closePCReferral()" class="text-neutral-muted"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <p class="text-xs text-neutral-charcoal leading-relaxed mb-5">내 고유 추천코드가 내장된 아래 링크를 친구에게 공유해 보세요. 친구가 결제 완료 시, 고객님과 친구분 보관함에 **15% VIP 혜택 기프트권**이 자동 즉시 지급됩니다.</p>
+      
+      <div class="bg-surface-bg border p-5 rounded-card-sm text-xs space-y-3 mb-6 shadow-inner">
+        <div class="flex justify-between"><span>나의 초대 코드명:</span><span class="font-bold text-primary-green">VIP_QUEEN</span></div>
+        <div class="flex flex-col gap-1 border-t pt-3">
+          <span>고유 공유 주소:</span>
+          <div class="flex gap-2">
+            <input type="text" id="pc-modal-link" readonly value="http://aurumflora.com/?ref=VIP_QUEEN" class="flex-grow border rounded text-xs px-3 py-2 select-all focus:ring-accent-gold border-neutral-light-border bg-white">
+            <button onclick="copyPCModalLink()" class="bg-primary-green text-accent-gold font-bold px-4 py-2 rounded text-xs shrink-0 border border-accent-gold transition hover:bg-accent-gold hover:text-primary-green shadow-sm">복사</button>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="simulateMockFriendPurchase()" class="w-full bg-accent-gold text-primary-green font-bold py-3.5 rounded text-xs hover:bg-accent-gold-dark hover:text-white transition flex items-center justify-center gap-1.5 shadow-md">
+        <span class="material-symbols-outlined text-[16px]">psychology</span>
+        <span>시뮬레이션: 내 코드로 친구가 첫 주문을 완료한 상황 발생</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Grand Confetti Viral Queen Celebration screen -->
+  <div id="master-queen-celeb" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="bg-gradient-to-b from-[#003300] to-primary-green border border-accent-gold w-full max-w-md rounded-card-lg text-center p-8 text-white animate-scale-in relative">
+      <div class="w-16 h-16 rounded-full bg-accent-gold/25 text-accent-gold border border-accent-gold flex items-center justify-center font-bold text-3xl mx-auto mb-4 shadow gold-glowing">👑</div>
+      <span class="text-[9px] uppercase tracking-widest font-bold text-accent-gold mb-1 block">Monthly Viral Queen Coronation</span>
+      <h3 class="font-serif text-xl font-bold">이달의 바이럴 퀸 대관식!</h3>
+      <p class="text-xs text-white/70 max-w-sm mx-auto leading-relaxed mt-2 mb-6">가장 활발하게 플라워 큐레이션을 공유하여 브랜드 전파에 기여해주신 최우수 VIP 멤버가 임명되었습니다.</p>
+      
+      <div class="bg-black/40 border border-accent-gold/30 rounded-card-sm p-6 max-w-xs mx-auto text-center mb-6">
+        <div class="w-14 h-14 rounded-full bg-accent-gold text-primary-green flex items-center justify-center font-bold text-xl mx-auto mb-3">👸</div>
+        <h4 id="master-celeb-name" class="font-serif text-base font-bold text-accent-gold">김지아</h4>
+        <p id="master-celeb-stats" class="text-xs text-white/80 mt-1">공유 45회 • 실구매 12건</p>
+      </div>
+      <button onclick="closeMasterQueenCeleb()" class="bg-accent-gold text-primary-green font-bold text-xs px-8 py-3 rounded shadow-md hover:bg-white hover:text-primary-green transition">대관식 축하 및 대시보드 적용</button>
+    </div>
+  </div>
+
+  <!-- Toast system -->
+  <div id="toast-container" class="fixed bottom-6 left-6 z-50 flex flex-col gap-2.5 pointer-events-none w-fit max-w-xs"></div>
+
+  <!-- Footer -->
+  <footer class="bg-surface-dark text-white/40 py-8 px-6 text-center text-xs border-t border-accent-gold/10 mt-12">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+      <span class="serif-title text-accent-gold font-bold">티타임즈 화원 - Aurum Flora</span>
+      <span>© 2026 AURUM FLORA. ALL RIGHTS RESERVED.</span>
+    </div>
+  </footer>
+
+  <!-- ==============================================
+       UNIFIED CORE JAVASCRIPT SYSTEM
+       ============================================== -->
+  <script>
+    // 카카오 오픈톡 링크 주소 설정 (실제 대표님 주소로 커스텀 가능)
+    const KAKAO_CHAT_URL = "https://open.kakao.com/o/sExampleChatLink"; 
+
+    // Unified Database Schema
+    const DATABASE_DEFAULT = {
+      user: { code: "VIP_QUEEN", isPremium: false, activeTab: "home", currentMode: "customer" },
+      referrals: [
+        { name: "김지아", code: "JIA_BOTANIC", shares: 45, conversions: 12 },
+        { name: "이민서", code: "MINSEO_FLORA", shares: 32, conversions: 8 },
+        { name: "VIP_QUEEN", code: "VIP_QUEEN", shares: 14, conversions: 3 },
+        { name: "박소윤", code: "SOYUN_ROSE", shares: 9, conversions: 2 },
+        { name: "최윤지", code: "YUNJI_LILY", shares: 5, conversions: 1 }
+      ],
+      orders: [
+        { id: "ORD-0001", date: "2026-05-18 10:24", customer: "김영희", recipient: "부모님", occasion: "celebration", product: "어버이 카네이션 럭셔리 감사 바구니", price: 102000, finalPrice: 102000, refCode: "JIA_BOTANIC", status: "complete" },
+        { id: "ORD-0002", date: "2026-05-19 14:15", customer: "이수진", recipient: "연인", occasion: "celebration", product: "선셋 로즈 임페리얼 골드 바구니", price: 120000, finalPrice: 102000, refCode: "MINSEO_FLORA", status: "complete" },
+        { id: "ORD-0003", date: "2026-05-20 09:40", customer: "정민호", recipient: "비즈니스 파트너", occasion: "apology", product: "로열 올리브 하모니 사과 바구니", price: 150000, finalPrice: 150000, refCode: "", status: "pending" }
+      ],
+      anniversaries: [
+        { id: "ANV-1", title: "어머니 생신", target: "parents", date: "2026-06-02" },
+        { id: "ANV-2", title: "결혼 3주년", target: "lover", date: "2026-06-18" },
+        { id: "ANV-3", title: "바이어 미팅 주간", target: "partner", date: "2026-07-05" }
+      ],
+      coupons: [
+        { id: "CPN-1", name: "15% 커뮤니티 가입 환영 할인권", discount: 0.15, code: "WELCOME_FLORA", used: false }
+      ],
+      alertsHistory: [
+        { time: "2026-05-19 09:00", text: "어머니 생신 1주일 전 - 알림톡 자동 발송 완료" }
+      ],
+      currentViralQueen: "김지아",
+      activeReferralApplied: null,
+      tempSelectedOccasion: null,
+      tempSelectedRecipient: null,
+      rsvps: { 1: false, 2: false }
+    };
+
+    let state = {};
+    let lastCopiedMessage = "";
+
+    function loadState() {
+      const stored = localStorage.getItem("flower_connect_hub_state");
+      if (stored) {
+        try { state = JSON.parse(stored); } catch (e) { state = JSON.parse(JSON.stringify(DATABASE_DEFAULT)); }
+      } else {
+        state = JSON.parse(JSON.stringify(DATABASE_DEFAULT));
+      }
+      saveState();
+    }
+
+    function saveState() {
+      localStorage.setItem("flower_connect_hub_state", JSON.stringify(state));
+    }
+
+    function getRecipientLabel(r) {
+      if (r === "parents") return "부모님";
+      if (r === "lover") return "연인";
+      if (r === "partner") return "바이어";
+      return "지인";
+    }
+
+    function masterResetSimulation() {
+      if (confirm("정말 전체 데이터베이스를 깨끗이 초기화하시겠습니까?\n새로 등록한 주문, 기념일, 쿠폰 등이 모두 리셋됩니다.")) {
+        localStorage.removeItem("flower_connect_hub_state");
+        loadState();
+        showToast("🔄 통합 데이터베이스 원격 초기화 완료", "PC와 모바일의 로컬 DB가 초기 설정값으로 리셋 및 동기화되었습니다.");
+        
+        state.user.activeTab = "home";
+        state.user.currentMode = "customer";
+        saveState();
+
+        renderAll();
+        switchPCMode("customer");
+        switchPCTab("home");
+      }
+    }
+
+    // ==============================================
+    // PC (DESKTOP) CONTROLLER & LOGIC
+    // ==============================================
+    function switchPCMode(mode) {
+      state.user.currentMode = mode;
+      saveState();
+
+      const btnCustomer = document.getElementById("pc-btn-customer");
+      const btnAdmin = document.getElementById("pc-btn-admin");
+      const nav = document.getElementById("pc-customer-nav");
+      
+      const tabHome = document.getElementById("pc-tab-home");
+      const tabOrder = document.getElementById("pc-tab-order");
+      const tabLounge = document.getElementById("pc-tab-lounge");
+      const tabMypage = document.getElementById("pc-tab-mypage");
+      const adminPane = document.getElementById("pc-view-admin");
+
+      [btnCustomer, btnAdmin].forEach(b => {
+        b.className = "px-4 py-1 rounded-full text-white/70 hover:text-white font-medium transition";
+      });
+
+      if (mode === "customer") {
+        btnCustomer.className = "px-4 py-1 rounded-full bg-accent-gold text-primary-green font-bold shadow";
+        nav.classList.remove("hidden");
+        nav.classList.add("flex");
+        adminPane.classList.add("hidden");
+        
+        switchPCTab(state.user.activeTab || "home");
+      } else {
+        btnAdmin.className = "px-4 py-1 rounded-full bg-accent-gold text-primary-green font-bold shadow";
+        nav.classList.add("hidden");
+        nav.classList.remove("flex");
+        
+        [tabHome, tabOrder, tabLounge, tabMypage].forEach(t => t.classList.add("hidden"));
+        adminPane.classList.remove("hidden");
+        
+        renderPCAdmin();
+      }
+    }
+
+    function switchPCTab(tabId) {
+      state.user.activeTab = tabId;
+      saveState();
+
+      const tabs = document.querySelectorAll(".pc-nav-tab");
+      tabs.forEach(tab => {
+        const title = tab.innerText.trim();
+        const matches = (tabId === "home" && title.includes("스토리")) ||
+                        (tabId === "order" && title.includes("스마트 주문")) ||
+                        (tabId === "lounge" && title.includes("VIP 라운지")) ||
+                        (tabId === "mypage" && title.includes("내 기념일"));
+        
+        if (matches) {
+          tab.className = "pc-nav-tab text-primary-green border-b-2 border-accent-gold px-1 py-1.5 transition";
+        } else {
+          tab.className = "pc-nav-tab text-neutral-muted hover:text-primary-green px-1 py-1.5 transition";
+        }
+      });
+
+      document.querySelectorAll(".pc-tab-content").forEach(c => c.classList.add("hidden"));
+      document.getElementById("pc-tab-" + tabId).classList.remove("hidden");
+    }
+
+    // PC Smart Order Wizard
+    function pcGoToStep(step) {
+      document.querySelectorAll(".pc-step-pane").forEach(p => p.classList.add("hidden"));
+      document.getElementById("pc-step-" + step).classList.remove("hidden");
+
+      for (let i = 1; i <= 3; i++) {
+        const dot = document.getElementById("pc-dot-" + i);
+        const line = document.getElementById("pc-line-" + i);
+        if (i < step) {
+          dot.className = "w-8 h-8 rounded-full bg-accent-gold text-primary-green flex items-center justify-center font-bold shadow";
+          if (line) line.className = "flex-grow h-[1px] bg-accent-gold mx-3";
+        } else if (i === step) {
+          dot.className = "w-8 h-8 rounded-full bg-primary-green text-white flex items-center justify-center font-bold shadow gold-glowing";
+          if (line) line.className = "flex-grow h-[1px] bg-neutral-light-border mx-3";
+        } else {
+          dot.className = "w-8 h-8 rounded-full bg-surface-bg text-neutral-muted flex items-center justify-center font-bold border border-neutral-light-border";
+          if (line) line.className = "flex-grow h-[1px] bg-neutral-light-border mx-3";
+        }
+      }
+    }
+
+    function pcSelectOccasion(occ) {
+      state.tempSelectedOccasion = occ;
+      const btns = document.querySelectorAll(".pc-occ-btn");
+      btns.forEach(btn => {
+        if (btn.outerHTML.includes(occ)) {
+          btn.classList.add("border-accent-gold", "bg-white", "ring-2", "ring-accent-gold/20");
+        } else {
+          btn.classList.remove("border-accent-gold", "bg-white", "ring-2", "ring-accent-gold/20");
+        }
+      });
+      setTimeout(() => pcGoToStep(2), 200);
+    }
+
+    function pcSelectRecipient(rec) {
+      state.tempSelectedRecipient = rec;
+      const btns = document.querySelectorAll(".pc-rec-btn");
+      btns.forEach(btn => {
+        if (btn.outerHTML.includes(rec)) {
+          btn.classList.add("border-accent-gold", "bg-white", "ring-2", "ring-accent-gold/20");
+        } else {
+          btn.classList.remove("border-accent-gold", "bg-white", "ring-2", "ring-accent-gold/20");
+        }
+      });
+      
+      calculatePCRecommendation();
+      setTimeout(() => pcGoToStep(3), 200);
+    }
+
+    function calculatePCRecommendation() {
+      const occ = state.tempSelectedOccasion || "celebration";
+      const rec = state.tempSelectedRecipient || "parents";
+
+      let title = ""; let description = ""; let price = 120000;
+      let flowers = []; let message = "";
+
+      if (occ === "celebration") {
+        price = rec === "parents" ? 150000 : rec === "lover" ? 120000 : rec === "partner" ? 180000 : 90000;
+        flowers = ["샤먼트 장미", "하노이 라넌큘러스", "유칼립투스", "캄파눌라", "핑크 수국"];
+        if (rec === "parents") {
+          title = "카네이션 골든 레전드 감사 화병 바구니";
+          description = "부모님의 은혜에 보답하는 품격 있는 골든 카네이션 믹스 바구니. 대표님의 특별 수입산 화재를 듬뿍 넣어 무게감과 기품을 극대화합니다.";
+          message = "늘 든든한 등대가 되어 주셔서 감사합니다. 사랑을 듬뿍 담아 마음을 올립니다.";
+        } else if (rec === "lover") {
+          title = "선셋 로즈 임페리얼 로맨틱 바구니";
+          description = "사랑의 뜨거운 열정과 순수함을 대변하는 최고급 선셋 로즈 메인의 꽃바구니 조합.";
+          message = "그대의 향기로 스치는 매일매일이 언제나 선물 같습니다. 온 마음으로 고백합니다.";
+        } else {
+          title = "조이플 라벤더 해피 데이 바구니";
+          description = "폼폰국화와 야생 안개꽃으로 조율한 캐주얼하면서 화사한 최고급 꽃 선물세트.";
+          message = "기쁘고 빛나는 특별한 너의 축제날을 축하해! 매일 꽃길만 걷길!";
+        }
+      } else if (occ === "consolation") {
+        price = rec === "parents" ? 140000 : rec === "lover" ? 110000 : 85000;
+        flowers = ["백합", "화이트 라넌큘러스", "델피늄", "안개꽃"];
+        title = "로열 실버 세레니티 힐링 바구니";
+        description = "정서적 안정을 유도하고 평화로움을 자아내는 백합 중심의 은은한 쉼의 디자인.";
+        message = "지친 마음 한구석에 이 꽃 향기가 따스한 토닥임이 되길 소망합니다.";
+      } else {
+        price = rec === "lover" ? 115000 : rec === "partner" ? 170000 : 90000;
+        flowers = ["파스텔 수국", "라벤더", "올리브 잎", "줄리엣 로즈"];
+        title = "파스텔 리컨실 라벤더 화해 바구니";
+        description = "서툰 언행을 진심으로 사죄하며 평화와 약속의 올리브 가지를 함께 엮은 고급 바구니.";
+        message = "내 행동과 말이 성급했던 점을 깊이 뉘우칩니다. 진심 어린 용서를 구합니다.";
+      }
+
+      state.activeRecommendation = { title, description, price, flowers, message, occasion: occ, recipient: rec };
+      saveState();
+
+      document.getElementById("pc-rec-title").innerText = title;
+      document.getElementById("pc-rec-desc").innerText = description;
+      document.getElementById("pc-rec-price").innerText = price.toLocaleString() + "원";
+      document.getElementById("pc-rec-msg").innerText = `"${message}"`;
+
+      const flws = document.getElementById("pc-rec-flowers");
+      flws.innerHTML = "";
+      flowers.forEach(f => {
+        flws.innerHTML += `<span class="bg-accent-gold/15 text-accent-gold-dark border border-accent-gold/40 text-[9px] font-bold px-2 py-0.5 rounded-full">🌱 ${f}</span>`;
+      });
+
+      document.getElementById("pc-summary-original").innerText = price.toLocaleString() + "원";
+      
+      const code = state.activeReferralApplied;
+      if (code) {
+        document.getElementById("pc-referral-input").value = code;
+        pcApplyReferral(true);
+      } else {
+        document.getElementById("pc-summary-disc-row").classList.add("hidden");
+        document.getElementById("pc-summary-final").innerText = price.toLocaleString() + "원";
+      }
+    }
+
+    function pcApplyReferral(isAuto = false) {
+      const code = document.getElementById("pc-referral-input").value.trim();
+      const rec = state.activeRecommendation;
+      if (!rec || !code) return;
+
+      state.activeReferralApplied = code;
+      saveState();
+
+      const disc = Math.round(rec.price * 0.15);
+      const final = rec.price - disc;
+
+      document.getElementById("pc-summary-disc-row").classList.remove("hidden");
+      document.getElementById("pc-summary-disc").innerText = `-${disc.toLocaleString()}원`;
+      document.getElementById("pc-summary-final").innerText = `${final.toLocaleString()}원`;
+
+      if (!isAuto) showToast("🎉 15% 할인이 감지되어 세팅되었습니다!", "주문서 결제선에 특별 초대 할인권 혜택이 적용되었습니다.");
+    }
+
+    function pcExecuteCheckout() {
+      const rec = state.activeRecommendation;
+      if (!rec) return;
+
+      const code = state.activeReferralApplied || "";
+      const disc = code ? Math.round(rec.price * 0.15) : 0;
+      const final = rec.price - disc;
+
+      const newOrd = {
+        id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
+        date: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        customer: "홍길동(PC)",
+        recipient: getRecipientLabel(rec.recipient),
+        occasion: rec.occasion,
+        product: rec.title,
+        price: rec.price,
+        finalPrice: final,
+        refCode: code,
+        status: "pending"
+      };
+
+      state.orders.unshift(newOrd);
+
+      if (code) {
+        state.referrals.forEach(r => {
+          if (r.code === code) { r.conversions += 1; r.shares += 2; }
+        });
+        state.coupons.push({
+          id: `CPN-${Math.floor(1000 + Math.random() * 9000)}`,
+          name: "15% 지인 초정 감사 바이럴권",
+          discount: 0.15,
+          code: `INV-${Math.floor(1000 + Math.random() * 9000)}`,
+          used: false
+        });
+        state.alertsHistory.unshift({
+          time: new Date().toISOString().replace('T', ' ').substring(0, 16),
+          text: `바이럴 구매 보상 - [홍길동]님에게 초청 보상 쿠폰 즉시 지급`
+        });
+      }
+
+      state.activeReferralApplied = null;
+      saveState();
+
+      // 실서비스 카톡 전송 텍스트 생성
+      lastCopiedMessage = `[티타임즈 화원 - 주문서 접수]\n\n` +
+                          `• 주문번호: ${newOrd.id}\n` +
+                          `• 주문자명: 홍길동(PC)\n` +
+                          `• 상황: ${rec.occasion === "celebration" ? "축하 & 기념일" : rec.occasion === "consolation" ? "위로 & 격려" : "사과 & 화해"}\n` +
+                          `• 받는대상: ${getRecipientLabel(rec.recipient)}\n` +
+                          `• 상품명: ${newOrd.product}\n` +
+                          `• 추천적용코드: ${code ? code : "없음"}\n` +
+                          `• 카드문구: "${rec.message}"\n` +
+                          `• 결제액: ${newOrd.finalPrice.toLocaleString()}원\n\n` +
+                          `* 대표님, 위 주문 내역을 전송합니다. 제작을 확정해 주세요!`;
+
+      // 클립보드 복사 시도
+      navigator.clipboard.writeText(lastCopiedMessage).then(() => {
+        showToast("📋 주문서 복사 완료", "주문 접수 내역이 클립보드에 자동 복사되었습니다.");
+      }).catch(err => {
+        console.error("클립보드 복사 실패: ", err);
+      });
+
+      // 알림톡 모달창 활성화
+      openKakaoAlert(
+        "📝 [주문서 접수 안내]",
+        lastCopiedMessage
+      );
+
+      renderAll();
+      pcGoToStep(1);
+      switchPCTab("mypage");
+    }
+
+    function sendToRealKakao() {
+      // 클립보드 재복사
+      if (lastCopiedMessage) {
+        navigator.clipboard.writeText(lastCopiedMessage);
+      }
+      closeKakaoAlert();
+      // 카카오톡 오픈채팅방 오픈
+      window.open(KAKAO_CHAT_URL, "_blank");
+      showToast("💬 카카오톡 연동 완료", "대표님 오픈채팅창에 복사된 주문서(Ctrl+V)를 전송하시면 완료됩니다.");
+    }
+
+    function pcUpgradeMembership() {
+      state.user.isPremium = true;
+      state.coupons.push({
+        id: `CPN-${Math.floor(1000 + Math.random() * 9000)}`,
+        name: "15% PC 클럽 VIP 멤버십 할인권",
+        discount: 0.15,
+        code: `VIP-CPN-${Math.floor(1000 + Math.random() * 9000)}`,
+        used: false
+      });
+      saveState();
+      renderAll();
+      showToast("👑 VIP 정회원 가입 완료!", "Aurum Club 정회원 웰컴 보상 15% VIP 할인권이 지급되어 보드가 해제되었습니다.");
+    }
+
+    function pcToggleRSVP(evtId) {
+      if (!state.user.isPremium) return;
+      state.rsvps[evtId] = !state.rsvps[evtId];
+      saveState();
+      
+      renderAll();
+      
+      if (state.rsvps[evtId]) {
+        showToast("🍷 살롱 신청 확정", "대표님의 VIP 와인/클래스 리스트에 정회원 이름이 성공적으로 등록되었습니다.");
+      } else {
+        showToast("알림", "모임 신청 취소가 완료되었습니다.");
+      }
+    }
+
+    function pcAddAnniversary(e) {
+      e.preventDefault();
+      const title = document.getElementById("pc-anniv-title").value.trim();
+      const target = document.getElementById("pc-anniv-target").value;
+      const date = document.getElementById("pc-anniv-date").value;
+      if (!title || !date) return;
+
+      state.anniversaries.push({
+        id: `ANV-${Math.floor(1000 + Math.random() * 9000)}`,
+        title, target, date
+      });
+      saveState();
+
+      document.getElementById("pc-anniv-title").value = "";
+      document.getElementById("pc-anniv-date").value = "";
+      renderAll();
+      showToast("📅 기념일 등록 완료", `'${title}' 기념일이 CRM 시스템에 안전하게 반영되었습니다.`);
+    }
+
+    function pcDeleteAnniv(id) {
+      state.anniversaries = state.anniversaries.filter(a => a.id !== id);
+      saveState();
+      renderAll();
+      showToast("알림", "기념일이 안전하게 삭제되었습니다.");
+    }
+
+    function pcTriggerAnnivSimulation(id) {
+      const anv = state.anniversaries.find(a => a.id === id);
+      if (!anv) return;
+
+      state.alertsHistory.unshift({
+        time: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        text: `PC CRM 기념일 알림 - '${anv.title}' 1주일 전 알림톡 카톡 시뮬레이션 작동`
+      });
+      state.tempSelectedOccasion = "celebration";
+      state.tempSelectedRecipient = anv.target;
+      saveState();
+
+      // 알림톡 창
+      const alertMsg = `안녕하세요, 홍길동 고객님!\n` +
+                       `소중한 사람을 위한 [${anv.title}] 기념일이 정확히 1주일 뒤로 다가왔습니다.\n\n` +
+                       `• 날짜: ${anv.date}\n` +
+                       `• 추천 상품: ${anv.title} 스페셜 감사바구니\n\n` +
+                       `대표님이 설계한 1:1 맞춤형 고품격 바구니에 마음을 전해 보세요. 본 전용 특별 초대코드가 삽입되어 예약 시 즉각 15% VIP 혜택가로 구매하실 수 있습니다.`;
+      
+      lastCopiedMessage = alertMsg;
+      navigator.clipboard.writeText(alertMsg);
+
+      openKakaoAlert(
+        "🔔 [CRM 자동 송출] 기념일 1주일 전 혜택 제안",
+        alertMsg
+      );
+      renderAll();
+    }
+
+    function pcCopyLink() {
+      navigator.clipboard.writeText("http://aurumflora.com/?ref=VIP_QUEEN").then(() => {
+        showToast("📋 링크 복사 완료", "고유 리퍼럴 초대 링크 주소가 복사되었습니다.");
+      });
+    }
+
+    function openPCReferral() {
+      document.getElementById("pc-referral-modal").classList.remove("hidden");
+      document.getElementById("pc-referral-modal").classList.add("flex");
+    }
+    function closePCReferral() {
+      document.getElementById("pc-referral-modal").classList.add("hidden");
+      document.getElementById("pc-referral-modal").classList.remove("flex");
+    }
+    function copyPCModalLink() {
+      navigator.clipboard.writeText("http://aurumflora.com/?ref=VIP_QUEEN").then(() => {
+        showToast("📋 링크 복사 완료", "리퍼럴 주소가 복사되었습니다.");
+      });
+    }
+
+    function pcAdminSelectQueen() {
+      let maxRef = state.referrals[0];
+      state.referrals.forEach(r => {
+        if (r.conversions > maxRef.conversions) maxRef = r;
+      });
+
+      state.currentViralQueen = maxRef.name;
+      saveState();
+      renderAll();
+
+      document.getElementById("master-celeb-name").innerText = maxRef.name;
+      document.getElementById("master-celeb-stats").innerText = `공유 ${maxRef.shares}회 • 실구매전환 ${maxRef.conversions}건`;
+      
+      document.getElementById("master-queen-celeb").classList.remove("hidden");
+      document.getElementById("master-queen-celeb").classList.add("flex");
+    }
+
+    function closeMasterQueenCeleb() {
+      document.getElementById("master-queen-celeb").classList.add("hidden");
+      document.getElementById("master-queen-celeb").classList.remove("flex");
+    }
+
+    function togglePCOrderStatus(id) {
+      state.orders.forEach(o => {
+        if (o.id === id) {
+          o.status = o.status === "complete" ? "pending" : "complete";
+          showToast("알림", `주문 ${id} 상태가 성공적으로 토글되었습니다.`);
+        }
+      });
+      saveState();
+      renderAll();
+    }
+
+    function renderPCAdmin() {
+      const orders = state.orders;
+      const sharesCount = state.referrals.reduce((sum, r) => sum + r.shares, 0);
+      const salesSum = orders.reduce((sum, o) => sum + o.finalPrice, 0);
+
+      document.getElementById("pc-adm-orders").innerText = orders.length + "건";
+      document.getElementById("pc-adm-sales").innerText = `₩${salesSum.toLocaleString()}`;
+      document.getElementById("pc-adm-shares").innerText = sharesCount + "회";
+      document.getElementById("pc-adm-queen").innerText = `👑 ${state.currentViralQueen}`;
+
+      const tbody = document.getElementById("pc-adm-orders-tbody");
+      tbody.innerHTML = "";
+      if (orders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-neutral-muted">접수된 주문이 비어 있습니다.</td></tr>`;
+      } else {
+        orders.forEach(o => {
+          let bClass = o.status === "complete" ? "bg-emerald-100 text-emerald-800 border-emerald-300" : "bg-amber-100 text-amber-800 border-amber-300 animate-pulse";
+          let bText = o.status === "complete" ? "제작 및 전송완료" : "제작 대기중";
+          tbody.innerHTML += `
+            <tr class="border-b hover:bg-surface-bg/30 text-xs">
+              <td class="py-3.5 px-4 font-bold">${o.customer}<span class="block text-[9px] text-neutral-muted font-normal">${o.date}</span></td>
+              <td class="py-3.5 px-4 font-serif font-bold text-primary-green">${o.product}</td>
+              <td class="py-3.5 px-4 font-bold text-accent-gold-dark">${o.finalPrice.toLocaleString()}원</td>
+              <td class="py-3.5 px-4 text-center"><button onclick="togglePCOrderStatus('${o.id}')" class="px-3 py-1 rounded-full border text-[10px] font-bold transition ${bClass}">${bText}</button></td>
+            </tr>
+          `;
+        });
+      }
+
+      const refList = document.getElementById("pc-adm-referrals-list");
+      refList.innerHTML = "";
+      const sorted = [...state.referrals].sort((a,b)=>b.conversions - a.conversions);
+      sorted.forEach((r, idx) => {
+        let active = r.name === state.currentViralQueen ? 'bg-accent-gold/15 border-accent-gold' : 'bg-surface-bg border-neutral-light-border/40';
+        let crown = idx === 0 ? "👑" : idx === 1 ? "🥈" : "🌱";
+        let convRate = r.shares ? Math.round((r.conversions / r.shares) * 100) : 0;
+        refList.innerHTML += `
+          <div class="p-3 rounded border text-xs flex justify-between items-center shadow-sm ${active}">
+            <div class="flex items-center gap-2">
+              <span class="text-base shrink-0">${crown}</span>
+              <div>
+                <span class="font-bold text-neutral-charcoal block">${r.name} <code>(${r.code})</code></span>
+                <span class="text-[9px] text-neutral-muted block mt-0.5">공유: ${r.shares}회 | 주문전환: ${r.conversions}건</span>
+              </div>
+            </div>
+            <span class="font-bold text-primary-green">${convRate}%</span>
+          </div>
+        `;
+      });
+    }
+
+    function simulateMockFriendPurchase() {
+      closePCReferral();
+
+      const fake = {
+        id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
+        date: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        customer: "지인(시물레이터)",
+        recipient: "연인",
+        occasion: "celebration",
+        product: "선셋 로즈 임페리얼 로맨틱 바구니",
+        price: 120000,
+        finalPrice: 102000,
+        refCode: "VIP_QUEEN",
+        status: "complete"
+      };
+
+      state.orders.unshift(fake);
+      state.referrals.forEach(r => {
+        if (r.code === "VIP_QUEEN") { r.conversions += 1; r.shares += 3; }
+      });
+      state.coupons.push({
+        id: `CPN-${Math.floor(1000 + Math.random() * 9000)}`,
+        name: "15% 지인 초청 성공 바이럴 보상권",
+        discount: 0.15,
+        code: `INV-${Math.floor(1000 + Math.random() * 9000)}`,
+        used: false
+      });
+
+      state.alertsHistory.unshift({
+        time: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        text: `초대 구매 보상 - [홍길동]님에게 초청 보상 15% 기프트 할인쿠폰 발송`
+      });
+
+      saveState();
+      renderAll();
+
+      const successMsg = `🎉 [티타임즈 화원] 리퍼럴 초청 보상 적립!\n\n` +
+                         `고객님의 초대코드(VIP_QUEEN)로 공유받은 지인분께서 스마트 첫 주문 결제를 성공적으로 완수하셨습니다.\n\n` +
+                         `동반 성취 정책에 따라 고객님 보관함에도 즉각 사용할 수 있는 [15% 바이럴 감사 쿠폰]이 자동 적립되었습니다.\n` +
+                         `마이페이지 내 쿠폰함에서 신선한 프리미엄 큐레이션을 적용해 보세요!`;
+
+      lastCopiedMessage = successMsg;
+      navigator.clipboard.writeText(successMsg);
+
+      openKakaoAlert(
+        "🎉 [리퍼럴 보상] 추천 코드 유입 결제 성공 알림",
+        successMsg
+      );
+    }
+
+    function showToast(title, body) {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = "bg-primary-green/95 border border-accent-gold text-white p-4 rounded-card-sm shadow-2xl flex gap-3 pointer-events-auto cursor-pointer transition-all duration-300 transform translate-y-2 opacity-0 text-xs";
+      toast.innerHTML = `
+        <span class="material-symbols-outlined text-accent-gold shrink-0">notifications_active</span>
+        <div>
+          <h5 class="font-bold text-accent-gold">${title}</h5>
+          <p class="text-[10px] text-white/80 mt-0.5 leading-relaxed">${body}</p>
+        </div>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.className = "bg-primary-green/95 border border-accent-gold text-white p-4 rounded-card-sm shadow-2xl flex gap-3 pointer-events-auto cursor-pointer transition-all duration-300 transform translate-y-0 opacity-100 text-xs";
+      }, 50);
+
+      setTimeout(() => {
+        toast.className = "bg-primary-green/95 border border-accent-gold text-white p-4 rounded-card-sm shadow-2xl flex gap-3 pointer-events-auto cursor-pointer transition-all duration-300 transform translate-y-2 opacity-0 text-xs";
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+
+      toast.onclick = () => toast.remove();
+    }
+
+    function renderAll() {
+      // VIP Lounge locks
+      const pcLock = document.getElementById("pc-lounge-lock");
+      const pcBadge = document.getElementById("pc-membership-badge");
+
+      if (state.user.isPremium) {
+        pcLock.classList.add("hidden"); pcBadge.classList.remove("hidden");
+      } else {
+        pcLock.classList.remove("hidden"); pcBadge.classList.add("hidden");
+      }
+
+      // Viral Queen spotlight
+      const queen = state.referrals.find(r => r.name === state.currentViralQueen) || state.referrals[0];
+      document.getElementById("pc-queen-name").innerText = queen.name;
+      document.getElementById("pc-queen-shares").innerText = queen.shares + "회";
+      document.getElementById("pc-queen-conversions").innerText = queen.conversions + "건";
+
+      // PC Coupons pocket
+      const activeCoupons = state.coupons.filter(c => !c.used);
+      const pcCoupBox = document.getElementById("pc-coupons-list");
+      pcCoupBox.innerHTML = "";
+      if (activeCoupons.length === 0) {
+        pcCoupBox.innerHTML = `<div class="text-center py-5 text-xs text-neutral-muted bg-surface-bg border border-dashed rounded">보유 중인 혜택 할인 쿠폰이 없습니다.</div>`;
+      } else {
+        activeCoupons.forEach(c => {
+          pcCoupBox.innerHTML += `
+            <div class="border border-accent-gold bg-accent-gold/5 rounded-card-sm p-4 text-xs flex items-center gap-3 shadow-sm hover:bg-accent-gold/10 transition">
+              <span class="material-symbols-outlined text-[28px] text-accent-gold-dark">confirmation_number</span>
+              <div>
+                <h5 class="font-bold text-primary-green">${c.name}</h5>
+                <span class="text-[9px] text-neutral-muted block mt-0.5">인증코드: ${c.code} (15% 혜택 즉시 감액)</span>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      // CRM Anniversaries list
+      const pcAnv = document.getElementById("pc-anniversaries-list");
+      pcAnv.innerHTML = "";
+      if (state.anniversaries.length === 0) {
+        pcAnv.innerHTML = `<div class="text-center py-6 text-xs text-neutral-muted border border-dashed rounded bg-surface-bg/30">등록된 VIP 일정 및 기념일이 없습니다.</div>`;
+      } else {
+        state.anniversaries.forEach(a => {
+          pcAnv.innerHTML += `
+            <div class="bg-surface-bg border p-4 rounded flex justify-between items-center text-xs shadow-sm hover:border-accent-gold transition">
+              <div>
+                <h5 class="font-bold text-neutral-charcoal text-sm">${a.title}</h5>
+                <span class="text-[10px] text-neutral-muted block mt-1">${getRecipientLabel(a.target)} • 다가오는 날짜: ${a.date}</span>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="pcTriggerAnnivSimulation('${a.id}')" class="bg-primary-green text-accent-gold border border-accent-gold font-bold text-[10px] px-3.5 py-1.5 rounded transition hover:bg-accent-gold hover:text-primary-green">알림 발송 시뮬레이션</button>
+                <button onclick="pcDeleteAnniv('${a.id}')" class="text-rose-500 hover:bg-rose-50 p-2 rounded transition"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      // RSVPs
+      for (let i = 1; i <= 2; i++) {
+        const pcBtn = document.getElementById("pc-rsvp-btn-" + i);
+        if (state.rsvps[i]) {
+          if (pcBtn) {
+            pcBtn.innerText = "✓ 참석 등록 완료";
+            pcBtn.className = "bg-accent-gold text-primary-green font-bold text-xs px-5 py-2.5 rounded border border-accent-gold-dark/40 shadow shrink-0";
+          }
+        } else {
+          if (pcBtn) {
+            pcBtn.innerText = "참석 신청";
+            pcBtn.className = "bg-primary-green text-white font-bold text-xs px-5 py-2.5 rounded shrink-0 hover:bg-primary-dark-green transition";
+          }
+        }
+      }
+
+      if (state.user.currentMode === "admin") renderPCAdmin();
+    }
+
+    function clickKakaoOrderLink() {
+      closeKakaoAlert();
+      switchPCTab("order");
+      calculatePCRecommendation();
+      pcGoToStep(3);
+    }
+
+    function openKakaoAlert(title, text) {
+      document.getElementById("kakao-title").innerHTML = title;
+      document.getElementById("kakao-body-text").innerHTML = text;
+      
+      document.getElementById("kakao-alert-overlay").classList.remove("hidden");
+      document.getElementById("kakao-alert-overlay").classList.add("flex");
+    }
+
+    function closeKakaoAlert() {
+      document.getElementById("kakao-alert-overlay").classList.add("hidden");
+      document.getElementById("kakao-alert-overlay").classList.remove("flex");
+    }
+
+    // INITIAL LAUNCHER
+    window.addEventListener("DOMContentLoaded", () => {
+      loadState();
+      
+      // sync initial params (?ref=...)
+      const urlParams = new URLSearchParams(window.location.search);
+      const ref = urlParams.get('ref');
+      if (ref) {
+        state.activeReferralApplied = ref;
+        saveState();
+        showToast("🎟️ 리퍼럴 할인 장착 완료", `추천인 [${ref}] 혜택이 장착되어 주문서에 감액이 선반영됩니다.`);
+        switchPCTab("order");
+      }
+
+      switchPCMode("customer");
+      switchPCTab("home");
+      renderAll();
+    });
+  </script>
+</body>
+</html>
