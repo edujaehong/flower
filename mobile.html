@@ -1,6 +1,30 @@
 <!DOCTYPE html>
 <html class="light" lang="ko">
 <head>
+  <script>
+    (function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const force = urlParams.get('force') || sessionStorage.getItem('forceViewMode');
+      
+      if (force === "mobile") {
+        sessionStorage.setItem('forceViewMode', 'mobile');
+        return;
+      }
+      if (force === "desktop") {
+        window.location.replace("desktop.html" + window.location.search);
+        return;
+      }
+      
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) || 
+                       (navigator.maxTouchPoints > 0 && /iPad|Macintosh/i.test(userAgent)) || 
+                       window.innerWidth < 768;
+      
+      if (!isMobile) {
+        window.location.replace("desktop.html" + window.location.search);
+      }
+    })();
+  </script>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
   <title>티타임즈 화원 - Mobile Web App</title>
@@ -511,6 +535,14 @@
           <code class="text-accent-gold font-serif select-all">http://aurumflora.com/?ref=VIP_QUEEN</code>
           <button onclick="mCopyShareLink()" class="bg-accent-gold text-primary-green font-bold px-2.5 py-1 rounded text-[8px] shrink-0">링크 복사</button>
         </div>
+      </div>
+
+      <!-- Device View Toggle Section -->
+      <div class="pt-4 pb-8 text-center">
+        <button onclick="goToDesktopView()" class="inline-flex items-center gap-1.5 bg-[#1c1c19]/5 border border-[#1c1c19]/15 text-neutral-charcoal text-[9px] font-bold px-4 py-2 rounded-mobile-pill hover:bg-neutral-charcoal hover:text-white transition shadow-sm">
+          <span class="material-symbols-outlined text-[12px]">desktop_windows</span>PC 버전으로 보기
+        </button>
+        <p class="text-[8px] text-neutral-muted mt-2">일시적으로 모바일 감지 필터를 우회하여 데스크톱 화면으로 전환합니다.</p>
       </div>
 
     </div>
@@ -1238,6 +1270,13 @@
 
     function closeMCeleb() {
       document.getElementById("m-queen-celeb").className = "fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4";
+    }
+
+    function goToDesktopView() {
+      sessionStorage.setItem('forceViewMode', 'desktop');
+      const searchParams = new URLSearchParams(window.location.search);
+      searchParams.set('force', 'desktop');
+      window.location.href = "desktop.html?" + searchParams.toString();
     }
 
     function mResetSimulate() {
